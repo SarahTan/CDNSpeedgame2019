@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class PlayerController : Singleton<PlayerController>
 {
+    #region Constants
+
+    // Names and bindings are set in Unity's InputManager
+    private const string HORIZONTAL_ARROW = "Horizontal";
+    private const string VERTICAL_ARROW = "Vertical";
+
+    private const string HORIZONTAL_NUMPAD = "HorizontalNumpad";
+    private const string VERTICAL_NUMPAD = "VerticalNumpad";
+
+    #endregion
+
     #region Fields
 
     [Header("Mouse")]
@@ -14,6 +25,8 @@ public class PlayerController : Singleton<PlayerController>
 
     [Header("Mover")]
     [SerializeField]
+    private float canSwitchMoveInputDelay;
+    [SerializeField]
     private float speed;
     [SerializeField]
     private CharacterController charController;
@@ -21,6 +34,10 @@ public class PlayerController : Singleton<PlayerController>
 
     private Camera mainCam;
 
+    private bool canSwitchMoveInput = false;
+    private bool usingNumpad = false;
+    private bool hasReleasedPreviousMoveInputs = true;
+    private float canSwitchMoveInputStartTime;
 
     #endregion
 
@@ -37,6 +54,24 @@ public class PlayerController : Singleton<PlayerController>
     public bool LaserIsActive { get; private set; } = false;
 
 
+    private Vector2 CurrentMovementDirection
+    {
+        get
+        {
+            return new Vector2(Input.GetAxis(usingNumpad ? HORIZONTAL_NUMPAD : HORIZONTAL_ARROW),
+                               Input.GetAxis(usingNumpad ? VERTICAL_NUMPAD : VERTICAL_ARROW));
+        }
+    }
+
+    private Vector2 AltMovementDirection
+    {
+        get
+        {
+            return new Vector2(Input.GetAxis(usingNumpad ? HORIZONTAL_ARROW : HORIZONTAL_NUMPAD),
+                               Input.GetAxis(usingNumpad ? VERTICAL_ARROW : VERTICAL_NUMPAD));
+        }
+    }
+
     #endregion
 
     #region Unity Lifecycle
@@ -49,6 +84,7 @@ public class PlayerController : Singleton<PlayerController>
     private void Start()
     {
         UpdateCursorVisuals(false);
+        canSwitchMoveInputStartTime = Time.time;
     }
 
     private void Update()
@@ -67,10 +103,38 @@ public class PlayerController : Singleton<PlayerController>
         }
 
         // Mover
-        // TODO: Figure out what behavior we want with numpad
-        var moveDir = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        charController.Move(moveDir * speed * Time.deltaTime);
-        // TODO: restrict movement to cam viewport only?
+        if (hasReleasedPreviousMoveInputs)
+        {
+            if (AltMovementDirection != Vector2.zero)
+            {
+                // TODO: Bad stuff happens. Probably wanna give a grace period though.
+                Debug.LogError("BAD STUFF HAPPENS!");
+            }
+            else if (CurrentMovementDirection != Vector2.zero)
+            {
+                charController.Move(CurrentMovementDirection * speed * Time.deltaTime);
+                // TODO: restrict movement to cam viewport only?
+
+                if (!canSwitchMoveInput)
+                {
+                    canSwitchMoveInputStartTime = Time.time;
+                    canSwitchMoveInput = true;
+                }
+            }
+        }
+        else
+        {
+            hasReleasedPreviousMoveInputs = AltMovementDirection == Vector2.zero;
+        }
+
+        if (canSwitchMoveInput && Time.time - canSwitchMoveInputStartTime > canSwitchMoveInputDelay)
+        {
+            hasReleasedPreviousMoveInputs = false;
+            canSwitchMoveInput = false;
+            usingNumpad = !usingNumpad;
+
+            // TODO: Some kind of feedback so the player knows to use arrows or numpad
+        }
     }
 
     private void OnGUI()
