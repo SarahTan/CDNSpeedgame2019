@@ -1,10 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class Alphabet : MonoBehaviour
 {
+    #region Statics
+
+    private static int MAX_COLLISIONS = 8;
+
+    #endregion
+
     #region Fields
 
     [SerializeField]
@@ -14,6 +21,8 @@ public class Alphabet : MonoBehaviour
 
     PlayerController player;
     int steps = 0;
+
+    private Collider2D[] hitColliders = new Collider2D[MAX_COLLISIONS];
 
     #endregion
 
@@ -61,7 +70,8 @@ public class Alphabet : MonoBehaviour
         {
             if (player.LaserIsActive)
             {
-                // Use Time.fixedDeltaTime here so that the distance traveled calculation is consistent
+                // Use Time.fixedDeltaTime here so that the distance traveled calculation is consistent.
+                // Note: This speed calculation is different from that of PlayerController since time.fixedDeltaTime is used, but close enough
                 transform.position = Vector2.MoveTowards(player.transform.position, player.ReticleCenter, speed * Time.fixedDeltaTime * ++steps);
 
                 if (Vector2.Distance(transform.position, player.ReticleCenter) < Mathf.Epsilon)
@@ -77,5 +87,32 @@ public class Alphabet : MonoBehaviour
         }
     }
 
-    // TODO: Collision detection
+    // Do our own collision detection
+    private void FixedUpdate()
+    {
+        Array.Clear(hitColliders, 0, hitColliders.Length);
+
+        // TODO: Add layer mask once we have more stuff to collide with
+
+        // bounds.center is in local space, so convert it to world space
+        var numHits = Physics2D.OverlapBoxNonAlloc(transform.TransformPoint(text.mesh.bounds.center), text.mesh.bounds.size, 0f, hitColliders);
+        if(numHits > 0)
+        {
+            foreach(var collider in hitColliders)
+            {
+                // TODO: Create layer and tag manager and use variable here instead 
+                if (collider != null && collider.CompareTag("Enemy"))
+                {
+                    var enemySegment = collider.GetComponent<EnemySegment>();
+                    if(enemySegment != null)
+                    {
+                        // TODO: Create Enemy.cs and have that handle which segment to call TryMarkChar on,
+                        // and to handle the bad stuff which happens when a wrong segment is chosen
+                        enemySegment.TryMarkChar(CurrentChar);
+                        IsActive = false;
+                    }
+                }
+            }
+        }
+    }
 }
