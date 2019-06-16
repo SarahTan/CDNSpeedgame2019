@@ -31,13 +31,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField]
     private CharacterController charController;
 
-
     private Camera mainCam;
-
-    private bool canSwitchMoveInput = false;
-    private bool usingNumpad = false;
-    private bool hasReleasedPreviousMoveInputs = true;
-    private float canSwitchMoveInputStartTime;
 
     #endregion
 
@@ -53,25 +47,6 @@ public class PlayerController : Singleton<PlayerController>
 
     public bool LaserIsActive { get; private set; } = false;
 
-
-    private Vector2 CurrentMovementDirection
-    {
-        get
-        {
-            return new Vector2(Input.GetAxis(usingNumpad ? HORIZONTAL_NUMPAD : HORIZONTAL_ARROW),
-                               Input.GetAxis(usingNumpad ? VERTICAL_NUMPAD : VERTICAL_ARROW));
-        }
-    }
-
-    private Vector2 AltMovementDirection
-    {
-        get
-        {
-            return new Vector2(Input.GetAxis(usingNumpad ? HORIZONTAL_ARROW : HORIZONTAL_NUMPAD),
-                               Input.GetAxis(usingNumpad ? VERTICAL_ARROW : VERTICAL_NUMPAD));
-        }
-    }
-
     #endregion
 
     #region Unity Lifecycle
@@ -84,7 +59,7 @@ public class PlayerController : Singleton<PlayerController>
     private void Start()
     {
         UpdateCursorVisuals(false);
-        canSwitchMoveInputStartTime = Time.time;
+        moveStopTime = Time.time;
     }
 
     private void Update()
@@ -103,37 +78,81 @@ public class PlayerController : Singleton<PlayerController>
         }
 
         // Mover
-        if (hasReleasedPreviousMoveInputs)
-        {
-            if (AltMovementDirection != Vector2.zero)
-            {
-                // TODO: Bad stuff happens. Probably wanna give a grace period though.
-                Debug.LogError("BAD STUFF HAPPENS!");
-            }
-            else if (CurrentMovementDirection != Vector2.zero)
-            {
-                charController.Move(CurrentMovementDirection * speed * Time.deltaTime);
-                // TODO: restrict movement to cam viewport only?
+        UpdateMovement();
+    }
 
-                if (!canSwitchMoveInput)
-                {
-                    canSwitchMoveInputStartTime = Time.time;
-                    canSwitchMoveInput = true;
-                }
-            }
+    private bool usingNumpad = false; // Tracks whether the LAST PRESSED MOVEMENT was using the numpad
+    private Vector2 movementDirection = Vector2.zero; // Tracks the CURRENT MOVEMENT DIRECTION
+    private float moveStopTime; // Tracks the time AFTER WHICH holding a button NO LONGER MOVES
+
+    /// <summary>
+    /// Movement for player using Arrow Keys and Numpad
+    /// </summary>
+    private void UpdateMovement()
+    {
+        var numpadMovement = new Vector2(Input.GetAxis(HORIZONTAL_NUMPAD), Input.GetAxis(VERTICAL_NUMPAD));
+        var arrowMovment = new Vector2(Input.GetAxis(HORIZONTAL_ARROW), Input.GetAxis(VERTICAL_ARROW));
+
+        numpadMovement.Normalize();
+        arrowMovment.Normalize();
+
+        // Stupidly enumerate through all cases first - we can get smart later
+        if (numpadMovement != Vector2.zero
+            && arrowMovment != Vector2.zero)
+        {
+            // Trivial case - can't have both inputs happen at the same time
+            // TODO: Allow for at least a LITTLE bit of overlap
+            Debug.LogError("BAD STUFF HAPPENS! Double Move.");
+            return;
         }
-        else
+
+        // TODO: Some kind of feedback so the player knows to use arrows or numpad
+        // Case 1: Continue holding button that was held
+        if (movementDirection != Vector2.zero
+            && numpadMovement != Vector2.zero
+            && usingNumpad
+            && numpadMovement == movementDirection)
         {
-            hasReleasedPreviousMoveInputs = AltMovementDirection == Vector2.zero;
+            // Legal move
+        }
+        else if (movementDirection != Vector2.zero
+            && arrowMovment != Vector2.zero
+            && !usingNumpad
+            && arrowMovment == movementDirection)
+        {
+            // Legal move
+        }
+        // Case 2: Switching movement directions
+        else if (numpadMovement != Vector2.zero
+            && !usingNumpad)
+        {
+            movementDirection = numpadMovement;
+            usingNumpad = true;
+            moveStopTime = Time.time + canSwitchMoveInputDelay;
+        }
+        else if (arrowMovment != Vector2.zero
+            && usingNumpad)
+        {
+            movementDirection = arrowMovment;
+            usingNumpad = false;
+            moveStopTime = Time.time + canSwitchMoveInputDelay;
+        }
+        // Case 3: ANYTHING ELSE
+        else if (numpadMovement != Vector2.zero
+            || arrowMovment != Vector2.zero)
+        {
+            movementDirection = Vector2.zero;
+            Debug.LogError("BAD STUFF HAPPENS! Illegal Move.");
+            return;
         }
 
-        if (canSwitchMoveInput && Time.time - canSwitchMoveInputStartTime > canSwitchMoveInputDelay)
+        // Resolve movement
+        if (moveStopTime > Time.time
+            && (arrowMovment != Vector2.zero
+            || numpadMovement != Vector2.zero))
         {
-            hasReleasedPreviousMoveInputs = false;
-            canSwitchMoveInput = false;
-            usingNumpad = !usingNumpad;
-
-            // TODO: Some kind of feedback so the player knows to use arrows or numpad
+            charController.Move(movementDirection * speed * Time.deltaTime);
+            // TODO: restrict movement to cam viewport only?
         }
     }
 
