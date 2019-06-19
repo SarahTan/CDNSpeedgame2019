@@ -25,13 +25,17 @@ public class PlayerController : Singleton<PlayerController>
 
     [Header("Mover")]
     [SerializeField]
-    private float canSwitchMoveInputDelay;
+    private float maxMoveDurationPerKeypress;
     [SerializeField]
     private float speed;
     [SerializeField]
     private CharacterController charController;
 
     private Camera mainCam;
+
+    private bool wasUsingNumpad = false; // Tracks whether the LAST PRESSED MOVEMENT was using the numpad
+    private Vector2 movementDirection = Vector2.zero; // Tracks the CURRENT MOVEMENT DIRECTION
+    private float moveStopTime; // Tracks the time AFTER WHICH holding a button NO LONGER MOVES
 
     #endregion
 
@@ -81,9 +85,21 @@ public class PlayerController : Singleton<PlayerController>
         UpdateMovement();
     }
 
-    private bool usingNumpad = false; // Tracks whether the LAST PRESSED MOVEMENT was using the numpad
-    private Vector2 movementDirection = Vector2.zero; // Tracks the CURRENT MOVEMENT DIRECTION
-    private float moveStopTime; // Tracks the time AFTER WHICH holding a button NO LONGER MOVES
+    private void OnGUI()
+    {
+        // Typer
+        // TODO: Probably wanna rate limit this?
+        if (LaserIsActive && Event.current.isKey)
+        {
+            var downChar = Event.current.character;
+            if (char.IsLetter(downChar))
+            {
+                AlphabetManager.Instance.ActivateAlphabet(downChar);
+            }
+        }
+    }
+
+    #endregion
 
     /// <summary>
     /// Movement for player using Arrow Keys and Numpad
@@ -105,37 +121,37 @@ public class PlayerController : Singleton<PlayerController>
             Debug.LogError("BAD STUFF HAPPENS! Double Move.");
             return;
         }
-
+        
         // TODO: Some kind of feedback so the player knows to use arrows or numpad
         // Case 1: Continue holding button that was held
         if (movementDirection != Vector2.zero
             && numpadMovement != Vector2.zero
-            && usingNumpad
+            && wasUsingNumpad
             && numpadMovement == movementDirection)
         {
             // Legal move
         }
         else if (movementDirection != Vector2.zero
             && arrowMovment != Vector2.zero
-            && !usingNumpad
+            && !wasUsingNumpad
             && arrowMovment == movementDirection)
         {
             // Legal move
         }
         // Case 2: Switching movement directions
         else if (numpadMovement != Vector2.zero
-            && !usingNumpad)
+            && !wasUsingNumpad)
         {
             movementDirection = numpadMovement;
-            usingNumpad = true;
-            moveStopTime = Time.time + canSwitchMoveInputDelay;
+            wasUsingNumpad = true;
+            moveStopTime = Time.time + maxMoveDurationPerKeypress;
         }
         else if (arrowMovment != Vector2.zero
-            && usingNumpad)
+            && wasUsingNumpad)
         {
             movementDirection = arrowMovment;
-            usingNumpad = false;
-            moveStopTime = Time.time + canSwitchMoveInputDelay;
+            wasUsingNumpad = false;
+            moveStopTime = Time.time + maxMoveDurationPerKeypress;
         }
         // Case 3: ANYTHING ELSE
         else if (numpadMovement != Vector2.zero
@@ -155,22 +171,6 @@ public class PlayerController : Singleton<PlayerController>
             // TODO: restrict movement to cam viewport only?
         }
     }
-
-    private void OnGUI()
-    {
-        // Typer
-        // TODO: Probably wanna rate limit this?
-        if (LaserIsActive && Event.current.isKey)
-        {
-            var downChar = Event.current.character;
-            if (char.IsLetter(downChar))
-            {
-                AlphabetManager.Instance.ActivateAlphabet(downChar);
-            }
-        }
-    }
-
-    #endregion
 
     private void UpdateCursorVisuals(bool reset)
     {
