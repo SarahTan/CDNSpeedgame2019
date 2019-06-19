@@ -18,6 +18,8 @@ public class Alphabet : MonoBehaviour
     private float speed;
     [SerializeField]
     private TextMeshPro text;
+    [SerializeField]
+    private BoxCollider2D collider;
 
     PlayerController player;
     int steps = 0;
@@ -63,15 +65,15 @@ public class Alphabet : MonoBehaviour
         // Set active
         IsActive = true;
     }
-
-    private void Update()
+    
+    private void FixedUpdate()
     {
+        // Movement
+        // Calculate movement here so we can use Time.fixedDeltaTime and have a consistence distance traveled calculation
         if (IsActive)
         {
             if (player.LaserIsActive)
             {
-                // Use Time.fixedDeltaTime here so that the distance traveled calculation is consistent.
-                // Note: This speed calculation is different from that of PlayerController since time.fixedDeltaTime is used, but close enough
                 transform.position = Vector2.MoveTowards(player.transform.position, player.ReticleCenter, speed * Time.fixedDeltaTime * ++steps);
 
                 if (Vector2.Distance(transform.position, player.ReticleCenter) < Mathf.Epsilon)
@@ -85,17 +87,15 @@ public class Alphabet : MonoBehaviour
                 IsActive = false;
             }
         }
-    }
 
-    // Do our own collision detection
-    private void FixedUpdate()
-    {
+
+        // Collision
         Array.Clear(hitColliders, 0, hitColliders.Length);
 
         // TODO: Add layer mask once we have more stuff to collide with
 
         // bounds.center is in local space, so convert it to world space
-        var numHits = Physics2D.OverlapBoxNonAlloc(transform.TransformPoint(text.mesh.bounds.center), text.mesh.bounds.size, 0f, hitColliders);
+        var numHits = Physics2D.OverlapBoxNonAlloc(transform.TransformPoint(collider.bounds.center), collider.bounds.size, 0f, hitColliders);
         if(numHits > 0)
         {
             foreach(var collider in hitColliders)
@@ -114,5 +114,11 @@ public class Alphabet : MonoBehaviour
                 }
             }
         }
+    }
+
+    // TODO: Figure out why the heck the collider is moving faster than the gameobject
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireCube(transform.TransformPoint(collider.bounds.center), collider.bounds.size);
     }
 }
