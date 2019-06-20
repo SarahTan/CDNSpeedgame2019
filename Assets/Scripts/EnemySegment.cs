@@ -25,8 +25,6 @@ public class EnemySegment : MonoBehaviour
 
     [SerializeField]
     private TextMeshPro text;
-    [SerializeField]
-    private BoxCollider2D collider;
 
     // TODO: Move to enemy manager class
     [SerializeField]
@@ -52,9 +50,6 @@ public class EnemySegment : MonoBehaviour
             if(value != _targetString)
             {
                 _targetString = value;
-
-                // Adjust collider size
-                StartCoroutine(UpdateColliderSize());
             }
         }
     }
@@ -127,14 +122,6 @@ public class EnemySegment : MonoBehaviour
     public void ActivateSegment()
     {
         CurrentState = EnemySegmentState.Active;
-    }
-
-    private IEnumerator UpdateColliderSize()
-    {
-        // Need to wait for the GUI to render first, so that the text will have the updated bounds
-        yield return new WaitForEndOfFrame();
-
-        collider.size = text.mesh.bounds.size;
     }
 
     public void TryMarkChar(char charToTry)

@@ -94,7 +94,7 @@ public class PlayerController : Singleton<PlayerController>
             var downChar = Event.current.character;
             if (char.IsLetter(downChar))
             {
-                AlphabetManager.Instance.ActivateAlphabet(downChar);
+                AlphabetManager.Instance.ActivateAlphabet(char.ToUpperInvariant(downChar));
             }
         }
     }

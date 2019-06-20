@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 4859057187702113351}
   - component: {fileID: 7298026616491187256}
   - component: {fileID: 3503979333071004108}
-  - component: {fileID: 7051165278514148913}
   - component: {fileID: 2592193058527032769}
   - component: {fileID: 9204429167494701621}
   - component: {fileID: 6079178598556746125}
@@ -55,7 +54,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 9204429167494701621}
-  collider: {fileID: 7051165278514148913}
   markedColor: {r: 0, g: 0, b: 0, a: 1}
   unmarkedColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!33 &7298026616491187256
@@ -74,32 +72,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4951479076072209602}
   m_CullTransparentMesh: 0
---- !u!61 &7051165278514148913
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4951479076072209602}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: -0.04377258, y: -0.00850296}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 6.7970934, y: 2.5914245}
-  m_EdgeRadius: 0
 --- !u!23 &2592193058527032769
 MeshRenderer:
   m_ObjectHideFlags: 0

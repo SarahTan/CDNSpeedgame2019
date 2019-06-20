@@ -101,15 +101,20 @@ public class Alphabet : MonoBehaviour
             foreach(var collider in hitColliders)
             {
                 // TODO: Create layer and tag manager and use variable here instead 
-                if (collider != null && collider.CompareTag("Enemy"))
+                if (collider != null)
                 {
-                    var enemySegment = collider.GetComponent<EnemySegment>();
-                    if(enemySegment != null)
+                    if (collider.CompareTag("Enemy"))
                     {
-                        // TODO: Create Enemy.cs and have that handle which segment to call TryMarkChar on,
-                        // and to handle the bad stuff which happens when a wrong segment is chosen
-                        enemySegment.TryMarkChar(CurrentChar);
-                        IsActive = false;
+                        var enemy = collider.GetComponent<Enemy>();
+                        if (enemy != null)
+                        {
+                            enemy.OnAlphabetImpact(CurrentChar);
+                            IsActive = false;
+                        }
+                    }
+                    else
+                    {
+                        // TODO: Bad things happen. Filter out the stuff to collide with first using layer masks before implementing this
                     }
                 }
             }

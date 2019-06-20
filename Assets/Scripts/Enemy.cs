@@ -8,7 +8,11 @@ public class Enemy : MonoBehaviour
 
     [SerializeField]
     private EnemySegment enemySegmentPrefab;
-    
+    [SerializeField]
+    private BoxCollider2D collider;
+
+    private RectTransform rectTransfrom;
+
     private List<EnemySegment> segments = new List<EnemySegment>();
 
     private string targetString;
@@ -22,11 +26,16 @@ public class Enemy : MonoBehaviour
 
     #endregion
 
+    private void Awake()
+    {
+        rectTransfrom = (RectTransform)transform;
+    }
+
     private void Start()
     {
         ActivateEnemy(new Vector2(7, 4), "TESTING");
     }
-    
+
     public void ActivateEnemy(Vector2 position, string newTarget)
     {
         if (string.IsNullOrEmpty(newTarget))
@@ -58,6 +67,20 @@ public class Enemy : MonoBehaviour
 
         currentActiveSegmentIndex = 0;
         segments[currentActiveSegmentIndex].ActivateSegment();
+                
+        // Adjust collider size
+        StartCoroutine(UpdateColliderSize());
+    }
+    
+    private IEnumerator UpdateColliderSize()
+    {
+        // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds
+        yield return new WaitForEndOfFrame();
+        collider.size = rectTransfrom.sizeDelta;
+    }
+    public void OnAlphabetImpact(char charToTry)
+    {
+        segments[currentActiveSegmentIndex].TryMarkChar(charToTry);
     }
 
     private void OnSegmentStateChanged(EnemySegment segment)
@@ -78,7 +101,4 @@ public class Enemy : MonoBehaviour
 
         // TODO: Once all segments are destroyed, we need to disable them and stop listening for this event
     }
-
-    // TODO: Implement TryMarkChar function for Alphabet to call (right now it calls EnemySegment directly), and forward it to the current active segment.
-    // Remove collider from EnemySegment and put it on Enemy instead
 }

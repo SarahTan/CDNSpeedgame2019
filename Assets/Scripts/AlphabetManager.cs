@@ -17,7 +17,7 @@ public class AlphabetManager : Singleton<AlphabetManager>
     public void ActivateAlphabet(char newChar)
     {
         var alphabet = GetInactiveAlphabet();
-        alphabet.Activate(char.ToUpperInvariant(newChar));
+        alphabet.Activate(newChar);
     }
     
     private Alphabet GetInactiveAlphabet()
