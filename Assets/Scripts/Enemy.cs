@@ -31,11 +31,6 @@ public class Enemy : MonoBehaviour
         rectTransfrom = (RectTransform)transform;
     }
 
-    private void Start()
-    {
-        ActivateEnemy(new Vector2(7, 4), "TESTING");
-    }
-
     public void ActivateEnemy(Vector2 position, string newTarget)
     {
         if (string.IsNullOrEmpty(newTarget))
