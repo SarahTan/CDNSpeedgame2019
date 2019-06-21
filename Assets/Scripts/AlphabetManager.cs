@@ -27,7 +27,7 @@ public class AlphabetManager : Singleton<AlphabetManager>
         if (alphabet == null)
         {
             alphabet = Instantiate(alphabetPrefab);
-            alphabet.transform.parent = transform;
+            alphabet.transform.SetParent(transform);
             alphabets.Add(alphabet);
         }
         return alphabet;
