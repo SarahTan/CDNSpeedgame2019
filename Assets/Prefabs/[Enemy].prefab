@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 7219550380339823574}
   - component: {fileID: 7219550380339823575}
   - component: {fileID: 3049355145912230470}
-  - component: {fileID: 8720169938030803448}
-  m_Layer: 0
+  - component: {fileID: 1971051881319027275}
+  m_Layer: 8
   m_Name: '[Enemy]'
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -57,7 +57,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 0
+  m_Spacing: 1
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
@@ -90,8 +90,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemySegmentPrefab: {fileID: 4859057187702113351, guid: b7d4a31b344e9ef4b8047e37c8ad4ad1,
     type: 3}
-  collider: {fileID: 8720169938030803448}
---- !u!61 &8720169938030803448
+  collider: {fileID: 1971051881319027275}
+--- !u!61 &1971051881319027275
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -26,10 +26,14 @@ public class Enemy : MonoBehaviour
 
     #endregion
 
+    #region Unity Lifecycle
+
     private void Awake()
     {
         rectTransfrom = (RectTransform)transform;
     }
+
+    #endregion
 
     public void ActivateEnemy(Vector2 position, string newTarget)
     {
@@ -49,8 +53,7 @@ public class Enemy : MonoBehaviour
             if(segments.Count == i)
             {
                 var newSegment = Instantiate(enemySegmentPrefab);
-                newSegment.transform.localScale = transform.lossyScale;
-                newSegment.transform.parent = transform;
+                newSegment.transform.SetParent(transform, worldPositionStays: false);
                 segments.Add(newSegment);
             }
 
@@ -62,17 +65,18 @@ public class Enemy : MonoBehaviour
 
         currentActiveSegmentIndex = 0;
         segments[currentActiveSegmentIndex].ActivateSegment();
-                
+
         // Adjust collider size
         StartCoroutine(UpdateColliderSize());
+
+        IEnumerator UpdateColliderSize()
+        {
+            // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds
+            yield return new WaitForEndOfFrame();
+            collider.size = rectTransfrom.sizeDelta;
+        }
     }
-    
-    private IEnumerator UpdateColliderSize()
-    {
-        // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds
-        yield return new WaitForEndOfFrame();
-        collider.size = rectTransfrom.sizeDelta;
-    }
+
     public void OnAlphabetImpact(char charToTry)
     {
         segments[currentActiveSegmentIndex].TryMarkChar(charToTry);
@@ -86,14 +90,16 @@ public class Enemy : MonoBehaviour
             if (currentActiveSegmentIndex + 1 < currentNumberOfSegments)
             {
                 segments[++currentActiveSegmentIndex].ActivateSegment();
-                Debug.LogError(currentActiveSegmentIndex, segments[currentActiveSegmentIndex]);
             }
             else
             {
                 // TODO: All completed, now what
             }
         }
+        else if(segment.CurrentState == EnemySegment.EnemySegmentState.Destroyed)
+        {
+            // TODO: Once all segments are destroyed, we need to disable them and stop listening for this event
+        }
 
-        // TODO: Once all segments are destroyed, we need to disable them and stop listening for this event
     }
 }

@@ -25,6 +25,10 @@ public class EnemySegment : MonoBehaviour
 
     [SerializeField]
     private TextMeshPro text;
+    [SerializeField]
+    private SpriteRenderer backgroundRenderer;
+    [SerializeField]
+    private BoxCollider2D collider;
 
     // TODO: Move to enemy manager class
     [SerializeField]
@@ -36,6 +40,8 @@ public class EnemySegment : MonoBehaviour
 
     private string markedColorHex;
     private string unmarkedColorHex;
+
+    private RectTransform rectTransform;
 
     #endregion
 
@@ -50,10 +56,20 @@ public class EnemySegment : MonoBehaviour
             if(value != _targetString)
             {
                 _targetString = value;
+                StartCoroutine(SetBackgroundRenderer());
+
+                IEnumerator SetBackgroundRenderer()
+                {
+                    // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds
+                    yield return null;
+
+                    backgroundRenderer.size = rectTransform.sizeDelta + Vector2.one;
+                    collider.size = rectTransform.sizeDelta;
+                }
             }
         }
     }
-
+    
     private char FirstUnmarkedChar
     {
         get
@@ -79,7 +95,7 @@ public class EnemySegment : MonoBehaviour
             if(value != _currentState)
             {
                 _currentState = value;
-                UpdateVisuals();
+                UpdateTextVisuals();
                 EnemySegmentStateChangeEvent?.Invoke(this);
             }
         }
@@ -99,6 +115,8 @@ public class EnemySegment : MonoBehaviour
     {
         markedColorHex = ColorUtility.ToHtmlStringRGB(markedColor);
         unmarkedColorHex = ColorUtility.ToHtmlStringRGB(unmarkedColor);
+
+        rectTransform = (RectTransform)transform;
     }
 
     private void OnMouseOver()
@@ -135,11 +153,11 @@ public class EnemySegment : MonoBehaviour
                 CurrentState = EnemySegmentState.Completed;
             }
 
-            UpdateVisuals();
+            UpdateTextVisuals();
         }
     }
 
-    private void UpdateVisuals()
+    private void UpdateTextVisuals()
     {
         switch (CurrentState)
         {

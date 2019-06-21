@@ -18,8 +18,6 @@ public class Alphabet : MonoBehaviour
     private float speed;
     [SerializeField]
     private TextMeshPro text;
-    [SerializeField]
-    private BoxCollider2D collider;
 
     PlayerController player;
     int steps = 0;
@@ -68,8 +66,14 @@ public class Alphabet : MonoBehaviour
     
     private void FixedUpdate()
     {
-        // Movement
         // Calculate movement here so we can use Time.fixedDeltaTime and have a consistence distance traveled calculation
+        UpdateMovement();
+
+        CheckForEnemyCollision();
+    }
+
+    private void UpdateMovement()
+    {
         if (IsActive)
         {
             if (player.LaserIsActive)
@@ -87,18 +91,18 @@ public class Alphabet : MonoBehaviour
                 IsActive = false;
             }
         }
+    }
 
-
-        // Collision
+    private void CheckForEnemyCollision()
+    {
         Array.Clear(hitColliders, 0, hitColliders.Length);
 
-        // TODO: Add layer mask once we have more stuff to collide with
-
-        // bounds.center is in local space, so convert it to world space
-        var numHits = Physics2D.OverlapBoxNonAlloc(transform.TransformPoint(collider.bounds.center), collider.bounds.size, 0f, hitColliders);
-        if(numHits > 0)
+        // Unfortunately, the bounds don't seem to respect scale, so we have to manually calculate the correct box size
+        var boxSize = Vector3.Scale(text.bounds.size, transform.lossyScale);
+        var numHits = Physics2D.OverlapBoxNonAlloc(transform.position, boxSize, 0f, hitColliders, EnemyManager.ENEMY_LAYERMASK);
+        if (numHits > 0)
         {
-            foreach(var collider in hitColliders)
+            foreach (var collider in hitColliders)
             {
                 // TODO: Create layer and tag manager and use variable here instead 
                 if (collider != null)
@@ -119,11 +123,5 @@ public class Alphabet : MonoBehaviour
                 }
             }
         }
-    }
-
-    // TODO: Figure out why the heck the collider is moving faster than the gameobject
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawWireCube(transform.TransformPoint(collider.bounds.center), collider.bounds.size);
     }
 }
