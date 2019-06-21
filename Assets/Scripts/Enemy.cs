@@ -10,7 +10,10 @@ public class Enemy : MonoBehaviour
     private EnemySegment enemySegmentPrefab;
     [SerializeField]
     private BoxCollider2D collider;
+    [SerializeField]
+    private Rigidbody2D rb;
 
+    
     private RectTransform rectTransfrom;
 
     private List<EnemySegment> segments = new List<EnemySegment>();
@@ -18,6 +21,16 @@ public class Enemy : MonoBehaviour
     private string targetString;
     private int currentNumberOfSegments;
     private int currentActiveSegmentIndex;
+
+    // Movement
+    private float nextChangeTargetPositionTime;
+    private Vector2 targetPosition;
+    private float currentSpeed;
+
+    private Vector2 targetDirection;
+    private Plane[] frustrumPlanes;
+
+    private bool usePhysics;
 
     #endregion
 
@@ -31,6 +44,61 @@ public class Enemy : MonoBehaviour
     private void Awake()
     {
         rectTransfrom = (RectTransform)transform;
+        frustrumPlanes = GeometryUtility.CalculateFrustumPlanes(Camera.main);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            usePhysics = !usePhysics;
+        }
+
+        if (!usePhysics)
+        {
+            rb.isKinematic = true;
+
+            if (Time.time > nextChangeTargetPositionTime)
+            {
+                // TODO: Don't hard code the min and max position values, calculate based on screen size
+                targetPosition = new Vector2(Random.Range(-7f, 7f), Random.Range(-4.5f, 4.5f));
+
+                // TODO: Also don't hard code the min and max here
+                nextChangeTargetPositionTime = Time.time + Random.Range(1f, 3f);
+
+                // TODO: Ditto
+                currentSpeed = Random.Range(1f, 3f);
+            }
+
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition, currentSpeed * Time.deltaTime);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (usePhysics)
+        {
+            rb.isKinematic = false;
+
+            // Also check if it's within the camera's frustrum planes, ie is it visible
+            if (Time.time > nextChangeTargetPositionTime || !GeometryUtility.TestPlanesAABB(frustrumPlanes, collider.bounds))
+            {
+                rb.velocity = Vector2.zero;
+
+                // TODO: Don't hard code the min and max position values, calculate based on screen size
+                var targetPosition = new Vector3(Random.Range(-7f, 7f), Random.Range(-4.5f, 4.5f), 0);
+                targetDirection = targetPosition - transform.position;
+                targetDirection.Normalize();
+
+                // TODO: Also don't hard code the min and max here
+                nextChangeTargetPositionTime = Time.time + Random.Range(1f, 3f);
+
+                // TODO: Ditto
+                currentSpeed = Random.Range(1f, 3f);
+            }
+
+            rb.AddForce(targetDirection * currentSpeed);
+        }
     }
 
     #endregion

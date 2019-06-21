@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7219550380339823575}
   - component: {fileID: 3049355145912230470}
   - component: {fileID: 1971051881319027275}
+  - component: {fileID: 7648623021300405972}
   m_Layer: 8
   m_Name: '[Enemy]'
   m_TagString: Enemy
@@ -91,6 +92,8 @@ MonoBehaviour:
   enemySegmentPrefab: {fileID: 4859057187702113351, guid: b7d4a31b344e9ef4b8047e37c8ad4ad1,
     type: 3}
   collider: {fileID: 1971051881319027275}
+  rb: {fileID: 7648623021300405972}
+  _usePhysics: 0
 --- !u!61 &1971051881319027275
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -117,3 +120,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!50 &7648623021300405972
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7219550380339823572}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
