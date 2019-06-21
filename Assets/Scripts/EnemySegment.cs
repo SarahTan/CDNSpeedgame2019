@@ -7,6 +7,12 @@ using UnityEngine;
 
 public class EnemySegment : MonoBehaviour
 {
+    #region Statics
+
+    private static int MAX_COLLISIONS = 8;
+
+    #endregion
+
     #region Enums
 
     // TODO: Might want to convert this into a proper state machine if stuff gets more complicated
@@ -15,7 +21,7 @@ public class EnemySegment : MonoBehaviour
         Disabled = 0,       // Not in play
         Inactive = 1,       // Has targetString but can't start typing
         Active = 2,         // Can start typing
-        Completed = 3,      // Finished typing
+        Completed = 3,      // Finished typing, waiting to be destroyed
         Destroyed = 4       // Mouse has already right clicked it
     }
 
@@ -42,6 +48,9 @@ public class EnemySegment : MonoBehaviour
     private string unmarkedColorHex;
 
     private RectTransform rectTransform;
+
+    private Camera mainCam;
+    private Collider2D[] hitColliders = new Collider2D[MAX_COLLISIONS];
 
     #endregion
 
@@ -117,15 +126,13 @@ public class EnemySegment : MonoBehaviour
         unmarkedColorHex = ColorUtility.ToHtmlStringRGB(unmarkedColor);
 
         rectTransform = (RectTransform)transform;
+
+        mainCam = Camera.main;
     }
 
-    private void OnMouseOver()
+    private void FixedUpdate()
     {
-        // Right click
-        if (CurrentState == EnemySegmentState.Completed && Input.GetMouseButtonDown(1))
-        {
-            DestroySegment();
-        }
+        CheckForRightClick();
     }
     
     #endregion
@@ -154,6 +161,31 @@ public class EnemySegment : MonoBehaviour
             }
 
             UpdateTextVisuals();
+        }
+    }
+
+    private void CheckForRightClick()
+    {
+        if (Input.GetMouseButtonDown(1) && CurrentState == EnemySegmentState.Completed)
+        {
+            Array.Clear(hitColliders, 0, hitColliders.Length);
+
+            var mouseWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
+            var numHits = Physics2D.OverlapPointNonAlloc(mouseWorldPos, hitColliders);
+            if (numHits > 0)
+            {
+                foreach (var collider in hitColliders)
+                {
+                    if (collider != null)
+                    {
+                        var segment = collider.GetComponent<EnemySegment>();
+                        if (segment != null && segment == this)
+                        {
+                            DestroySegment();
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -191,7 +223,8 @@ public class EnemySegment : MonoBehaviour
                 break;
 
             case EnemySegmentState.Destroyed:
-                // TODO: Something
+                // TODO: Something. Not this, it's terrible and only for debugging
+                text.SetText($"<color=#{ColorUtility.ToHtmlStringRGB(Color.gray)}>{TargetString}");
                 break;
 
         }
@@ -199,7 +232,6 @@ public class EnemySegment : MonoBehaviour
 
     private void DestroySegment()
     {
-        Debug.LogError($"DESTROYED {this.name}!", gameObject);
         // TODO: What exactly does destroying this entail?
 
         CurrentState = EnemySegmentState.Destroyed;

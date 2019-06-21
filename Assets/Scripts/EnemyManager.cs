@@ -6,7 +6,8 @@ using UnityEngine;
 public class EnemyManager : MonoBehaviour
 {
     // TODO: Create a LayerMasks class to handle this so we don't hardcode values like this!
-    public static int ENEMY_LAYERMASK = 1 << 8;     // 8: Layer of "Enemy"
+    public static int ENEMY_LAYERMASK = 1 << 8;             // 8: Layer of "Enemy"
+    public static int ENEMY_SEGMENT_LAYERMASK = 1 << 9;     // 9: Layer of "EnemySegment"
 
     #region Fields
 
