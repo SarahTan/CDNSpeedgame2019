@@ -64,8 +64,31 @@ public class EnemyManager : MonoBehaviour
             // TODO: Don't hard code the min and max position values, calculate based on screen size
             enemy.ActivateEnemy(new Vector2(Random.Range(-7f, 7f), Random.Range(-4.5f, 4.5f)), enemyStrings[Random.Range(0, enemyStrings.Count-1)]);
 
-            // TODO: Figure out a smarter way of spawning enemies based on how many are active on screen
-            yield return new WaitForSeconds(Random.Range(1f, 3f));
+            /* Enemies spawn more rapidly:
+             * As the game progresses
+             * The fewer of them are on screen
+             */
+
+            var numberOfActiveEnemies = enemies.Count(e => e.isActiveAndEnabled);
+            var idealNumberOfActiveEnemies = 15 + Time.time / 5;
+            var baseSpawnRate = 100 - Time.time / 10;
+            if (baseSpawnRate < 10)
+            {
+                baseSpawnRate = 10;
+                Debug.Log("This should be impossible without catlike speed and reflexes.");
+            }
+
+            if (idealNumberOfActiveEnemies > numberOfActiveEnemies)
+            {
+                var minRate = baseSpawnRate / ((idealNumberOfActiveEnemies - numberOfActiveEnemies) * (idealNumberOfActiveEnemies - numberOfActiveEnemies));
+                Debug.Log("Spawning with rate: " + minRate);
+                yield return (new WaitForSeconds(Random.Range(minRate, minRate + 1)));
+            }
+            else
+            {
+                yield return new WaitForSeconds(Random.Range(baseSpawnRate, baseSpawnRate + 1));
+            }
+
         }
     }
 }
