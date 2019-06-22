@@ -43,6 +43,8 @@ public class EnemyManager : MonoBehaviour
             }
         }
 
+        enemyStrings.OrderBy(x => x.Length);
+
         StartCoroutine(SpawnEnemiesRoutine());
     }
 
@@ -61,8 +63,24 @@ public class EnemyManager : MonoBehaviour
                 enemies.Add(enemy);
             }
 
+            // Word length increases as the game goes on
+            var minimumIndexForEnemyText = Time.time/20 - 2;
+            var maximumIndexForEnemyText = (enemyStrings.Count - 1)/2 + (Time.time / 20);
+            if (minimumIndexForEnemyText < 0)
+            {
+                minimumIndexForEnemyText = 0;
+            }
+            if (minimumIndexForEnemyText > (enemyStrings.Count - 1) / 2)
+            {
+                minimumIndexForEnemyText = (enemyStrings.Count - 1) / 2;
+            }
+            if (maximumIndexForEnemyText > enemyStrings.Count - 1)
+            {
+                maximumIndexForEnemyText = enemyStrings.Count - 1;
+            }
+
             // TODO: Don't hard code the min and max position values, calculate based on screen size
-            enemy.ActivateEnemy(new Vector2(Random.Range(-7f, 7f), Random.Range(-4.5f, 4.5f)), enemyStrings[Random.Range(0, enemyStrings.Count-1)]);
+            enemy.ActivateEnemy(new Vector2(Random.Range(-7f, 7f), Random.Range(-4.5f, 4.5f)), enemyStrings[Random.Range((int)minimumIndexForEnemyText, (int)maximumIndexForEnemyText)]);
 
             /* Enemies spawn more rapidly:
              * As the game progresses
@@ -81,7 +99,7 @@ public class EnemyManager : MonoBehaviour
             if (idealNumberOfActiveEnemies > numberOfActiveEnemies)
             {
                 var minRate = baseSpawnRate / ((idealNumberOfActiveEnemies - numberOfActiveEnemies) * (idealNumberOfActiveEnemies - numberOfActiveEnemies));
-                Debug.Log("Spawning with rate: " + minRate);
+                Debug.Log("Spawning with rate: " + minRate + ". MinIndex: " + minimumIndexForEnemyText + ". MaxIndex: " + maximumIndexForEnemyText);
                 yield return (new WaitForSeconds(Random.Range(minRate, minRate + 1)));
             }
             else
