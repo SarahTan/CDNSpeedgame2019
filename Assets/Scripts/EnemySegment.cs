@@ -41,11 +41,14 @@ public class EnemySegment : MonoBehaviour
     private Color markedColor;
     [SerializeField]
     private Color unmarkedColor;
+    [SerializeField]
+    private Color destroyedColor;
 
     private int firstUnmarkedCharIndex = 0;
 
     private string markedColorHex;
     private string unmarkedColorHex;
+    private string destroyedColorHex;
 
     private RectTransform rectTransform;
 
@@ -103,7 +106,7 @@ public class EnemySegment : MonoBehaviour
             if(value != _currentState)
             {
                 _currentState = value;
-                UpdateTextVisuals();
+                UpdateVisuals();
                 EnemySegmentStateChangeEvent?.Invoke(this);
             }
         }
@@ -121,8 +124,9 @@ public class EnemySegment : MonoBehaviour
 
     private void Awake()
     {
-        markedColorHex = ColorUtility.ToHtmlStringRGB(markedColor);
-        unmarkedColorHex = ColorUtility.ToHtmlStringRGB(unmarkedColor);
+        markedColorHex = ColorUtility.ToHtmlStringRGBA(markedColor);
+        unmarkedColorHex = ColorUtility.ToHtmlStringRGBA(unmarkedColor);
+        destroyedColorHex = ColorUtility.ToHtmlStringRGBA(destroyedColor);
 
         rectTransform = (RectTransform)transform;
     }
@@ -160,7 +164,7 @@ public class EnemySegment : MonoBehaviour
                 firstUnmarkedCharIndex++;
             }
 
-            UpdateTextVisuals();
+            UpdateVisuals();
         }
     }
 
@@ -189,7 +193,7 @@ public class EnemySegment : MonoBehaviour
         }
     }
 
-    private void UpdateTextVisuals()
+    private void UpdateVisuals()
     {
         switch (CurrentState)
         {
@@ -199,6 +203,7 @@ public class EnemySegment : MonoBehaviour
 
             case EnemySegmentState.Inactive:
                 text.SetText($"<color=#{unmarkedColorHex}>{TargetString}");
+                backgroundRenderer.color = markedColor;
                 gameObject.SetActive(true);
                 break;
 
@@ -212,7 +217,7 @@ public class EnemySegment : MonoBehaviour
                 {
                     text.SetText($"<color=#{markedColorHex}>{TargetString.Substring(0, firstUnmarkedCharIndex)}" +   // Marked
                                  $"<color=#{unmarkedColorHex}><u>{TargetString[firstUnmarkedCharIndex]}</u>" +       // First unmarked char is underlined
-                                 $"{TargetString.Substring(firstUnmarkedCharIndex + 1)}");                             // Remaining unmarked
+                                 $"{TargetString.Substring(firstUnmarkedCharIndex + 1)}");                           // Remaining unmarked
                 }
                 break;
 
@@ -223,8 +228,8 @@ public class EnemySegment : MonoBehaviour
                 break;
 
             case EnemySegmentState.Destroyed:
-                // TODO: Something. Not this, it's terrible and only for debugging
-                text.SetText($"<color=#{ColorUtility.ToHtmlStringRGB(Color.gray)}>{TargetString}");
+                text.SetText($"<color=#{destroyedColorHex}>{TargetString}");
+                backgroundRenderer.color = destroyedColor;
                 break;
 
         }
@@ -232,7 +237,8 @@ public class EnemySegment : MonoBehaviour
 
     private void DestroySegment()
     {
-        // TODO: What exactly does destroying this entail?
+        // The player can now pass through this segment
+        collider.enabled = false;
 
         CurrentState = EnemySegmentState.Destroyed;
     }
