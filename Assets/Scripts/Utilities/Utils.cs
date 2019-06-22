@@ -36,16 +36,22 @@ public static class Utils
         return GeometryUtility.TestPlanesAABB(_mainCamFrustrumPlanes, bounds);
     }
 
-    public static Vector2 GetScreenBounds()
+    public static Vector2 GetScreenExtents()
     {
         return MainCam.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
     }
     
     public static Vector3 GetRandomPositionOnScreen()
     {
-        var screenBounds = GetScreenBounds();
-        return new Vector3(Random.Range(-screenBounds.x, screenBounds.x),
-                           Random.Range(-screenBounds.y, screenBounds.y),
+        var screenExtents = GetScreenExtents();
+        return new Vector3(Random.Range(-screenExtents.x, screenExtents.x),
+                           Random.Range(-screenExtents.y, screenExtents.y),
                            0f);
+    }
+
+    public static Vector3 GetRandomUnitVector()
+    {
+        float angleRadians = UnityEngine.Random.Range(0, Mathf.PI * 2);
+        return new Vector2(Mathf.Sin(angleRadians), Mathf.Cos(angleRadians));
     }
 }

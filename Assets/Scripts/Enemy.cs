@@ -12,7 +12,10 @@ public class Enemy : MonoBehaviour
     private BoxCollider2D collider;
     [SerializeField]
     private Rigidbody2D rb;
-
+    [SerializeField]
+    private float maxSpeed;
+    [SerializeField]
+    private float minSpeed;
     
     private RectTransform rectTransfrom;
 
@@ -21,16 +24,7 @@ public class Enemy : MonoBehaviour
     private string targetString;
     private int currentNumberOfSegments;
     private int currentActiveSegmentIndex;
-
-    // Movement
-    private float nextChangeTargetPositionTime;
-    private Vector3 targetPosition;
-    private float currentSpeed;
-
-    private Vector2 targetDirection;
-
-    private bool usePhysics;
-
+    
     #endregion
 
     #region Properties
@@ -45,55 +39,16 @@ public class Enemy : MonoBehaviour
         rectTransfrom = (RectTransform)transform;
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            usePhysics = !usePhysics;
-        }
-
-        if (!usePhysics)
-        {
-            rb.isKinematic = true;
-
-            if (Time.time > nextChangeTargetPositionTime)
-            {
-                targetPosition = Utils.GetRandomPositionOnScreen();
-
-                // TODO: Also don't hard code the min and max here
-                nextChangeTargetPositionTime = Time.time + Random.Range(1f, 3f);
-
-                // TODO: Ditto
-                currentSpeed = Random.Range(1f, 3f);
-            }
-
-            transform.position = Vector2.MoveTowards(transform.position, targetPosition, currentSpeed * Time.deltaTime);
-        }
-    }
-
     private void FixedUpdate()
     {
-        if (usePhysics)
+        // Clamp the speed
+        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed)
         {
-            rb.isKinematic = false;
-
-            // Also check if it's within the camera's frustrum planes, ie is it visible
-            if (Time.time > nextChangeTargetPositionTime || !collider.bounds.IsVisibleInMainCam())
-            {
-                rb.velocity = Vector2.zero;
-
-                targetPosition = Utils.GetRandomPositionOnScreen();
-                targetDirection = targetPosition - transform.position;
-                targetDirection.Normalize();
-
-                // TODO: Also don't hard code the min and max here
-                nextChangeTargetPositionTime = Time.time + Random.Range(1f, 3f);
-
-                // TODO: Ditto
-                currentSpeed = Random.Range(1f, 3f);
-            }
-
-            rb.AddForce(targetDirection * currentSpeed);
+            rb.velocity = rb.velocity.normalized * maxSpeed;
+        }
+        else if(rb.velocity.sqrMagnitude < minSpeed * minSpeed)
+        {
+            rb.velocity = rb.velocity.normalized * minSpeed;
         }
     }
 
@@ -129,6 +84,11 @@ public class Enemy : MonoBehaviour
 
         currentActiveSegmentIndex = 0;
         segments[currentActiveSegmentIndex].ActivateSegment();
+        
+        // Give the enemy an instantaneous force and let physics handle the rest of its movement
+        var direction = Utils.GetRandomUnitVector();
+        var speed = Random.Range(minSpeed, maxSpeed);
+        rb.AddForce(direction * speed, ForceMode2D.Impulse);
 
         // Adjust collider size
         StartCoroutine(UpdateColliderSize());
