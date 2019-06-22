@@ -27,6 +27,8 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField]
     private float maxMoveDurationPerKeypress;
     [SerializeField]
+    private float minMovedurationPerKeypress;
+    [SerializeField]
     private float speed;
     [SerializeField]
     private CharacterController charController;
@@ -36,6 +38,7 @@ public class PlayerController : Singleton<PlayerController>
     private bool wasUsingNumpad = false; // Tracks whether the LAST PRESSED MOVEMENT was using the numpad
     private Vector2 movementDirection = Vector2.zero; // Tracks the CURRENT MOVEMENT DIRECTION
     private float moveStopTime; // Tracks the time AFTER WHICH holding a button NO LONGER MOVES
+    private float moveStartTime; // Tracks the time that movement started
 
     #endregion
 
@@ -117,7 +120,6 @@ public class PlayerController : Singleton<PlayerController>
             && arrowMovment != Vector2.zero)
         {
             // Trivial case - can't have both inputs happen at the same time
-            // TODO: Allow for at least a LITTLE bit of overlap
             Debug.LogError("BAD STUFF HAPPENS! Double Move.");
             return;
         }
@@ -145,6 +147,7 @@ public class PlayerController : Singleton<PlayerController>
             movementDirection = numpadMovement;
             wasUsingNumpad = true;
             moveStopTime = Time.time + maxMoveDurationPerKeypress;
+            moveStartTime = Time.time;
         }
         else if (arrowMovment != Vector2.zero
             && wasUsingNumpad)
@@ -152,6 +155,7 @@ public class PlayerController : Singleton<PlayerController>
             movementDirection = arrowMovment;
             wasUsingNumpad = false;
             moveStopTime = Time.time + maxMoveDurationPerKeypress;
+            moveStartTime = Time.time;
         }
         // Case 3: ANYTHING ELSE
         else if (numpadMovement != Vector2.zero
@@ -163,9 +167,10 @@ public class PlayerController : Singleton<PlayerController>
         }
 
         // Resolve movement
-        if (moveStopTime > Time.time
+        if ((moveStopTime > Time.time
             && (arrowMovment != Vector2.zero
             || numpadMovement != Vector2.zero))
+            || Time.time < moveStartTime + minMovedurationPerKeypress)
         {
             charController.Move(movementDirection * speed * Time.deltaTime);
             // TODO: restrict movement to cam viewport only?

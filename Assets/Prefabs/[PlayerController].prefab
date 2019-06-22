@@ -48,7 +48,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cursorTex: {fileID: 2800000, guid: ffb9ff5d20afbcd4eb771def3eb53aae, type: 3}
   laser: {fileID: 4280708891273526408}
-  maxMoveDurationPerKeypress: 1
+  maxMoveDurationPerKeypress: 0.7
+  minMovedurationPerKeypress: 0.3
   speed: 5
   charController: {fileID: 4280708890353569394}
 --- !u!212 &4280708890353569395
