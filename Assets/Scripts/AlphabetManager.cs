@@ -22,7 +22,6 @@ public class AlphabetManager : Singleton<AlphabetManager>
     
     private Alphabet GetInactiveAlphabet()
     {
-        // TODO: Should we limit the max number of active alphabets?
         var alphabet = alphabets.Where(a => !a.IsActive).FirstOrDefault();
         if (alphabet == null)
         {

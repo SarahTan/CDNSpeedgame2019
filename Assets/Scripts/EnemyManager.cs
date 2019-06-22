@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-public class EnemyManager : MonoBehaviour
+public class EnemyManager : Singleton<EnemyManager>
 {
-    // TODO: Create a LayerMasks class to handle this so we don't hardcode values like this!
+    #region Statics
+
     public static int ENEMY_LAYERMASK = 1 << 8;             // 8: Layer of "Enemy"
     public static int ENEMY_SEGMENT_LAYERMASK = 1 << 9;     // 9: Layer of "EnemySegment"
+
+    #endregion
 
     #region Fields
 
@@ -18,11 +21,30 @@ public class EnemyManager : MonoBehaviour
     [SerializeField]
     private List<string> enemyStrings = new List<string>();
 
-    private List<Enemy> enemies = new List<Enemy>();
+    [Header("Colors")]
+    public Color MarkedColor;
+    public Color UnmarkedColor;
+    public Color DestroyedColor;
 
+    [HideInInspector]
+    public string MarkedColorHex;
+    [HideInInspector]
+    public string UnmarkedColorHex;
+    [HideInInspector]
+    public string DestroyedColorHex;
+
+    private List<Enemy> enemies = new List<Enemy>();
+    
     #endregion
 
     #region Unity Lifecycle
+
+    private void Awake()
+    {
+        MarkedColorHex = ColorUtility.ToHtmlStringRGBA(MarkedColor);
+        UnmarkedColorHex = ColorUtility.ToHtmlStringRGBA(UnmarkedColor);
+        DestroyedColorHex = ColorUtility.ToHtmlStringRGBA(DestroyedColor);
+    }
 
     private void Start()
     {
@@ -60,7 +82,6 @@ public class EnemyManager : MonoBehaviour
     {
         while (true)
         {
-            // TODO: Might want to use states instead of checking isActiveAndEnabled
             var enemy = enemies.FirstOrDefault(e => !e.isActiveAndEnabled);
             if (enemy == null)
             {

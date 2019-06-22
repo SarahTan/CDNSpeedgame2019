@@ -173,7 +173,6 @@ public class PlayerController : Singleton<PlayerController>
             || Time.time < moveStartTime + minMovedurationPerKeypress)
         {
             rb.velocity = movementDirection * speed;
-            // TODO: restrict movement to cam viewport only?
         }
     }
 

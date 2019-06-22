@@ -36,20 +36,7 @@ public class EnemySegment : MonoBehaviour
     [SerializeField]
     private BoxCollider2D collider;
 
-    // TODO: Move to enemy manager class
-    [SerializeField]
-    private Color markedColor;
-    [SerializeField]
-    private Color unmarkedColor;
-    [SerializeField]
-    private Color destroyedColor;
-
     private int firstUnmarkedCharIndex = 0;
-
-    private string markedColorHex;
-    private string unmarkedColorHex;
-    private string destroyedColorHex;
-
     private RectTransform rectTransform;
 
     private Collider2D[] hitColliders = new Collider2D[MAX_COLLISIONS];
@@ -103,10 +90,6 @@ public class EnemySegment : MonoBehaviour
 
     private void Awake()
     {
-        markedColorHex = ColorUtility.ToHtmlStringRGBA(markedColor);
-        unmarkedColorHex = ColorUtility.ToHtmlStringRGBA(unmarkedColor);
-        destroyedColorHex = ColorUtility.ToHtmlStringRGBA(destroyedColor);
-
         rectTransform = (RectTransform)transform;
     }
 
@@ -186,8 +169,8 @@ public class EnemySegment : MonoBehaviour
                 break;
 
             case EnemySegmentState.Inactive:
-                text.SetText($"<color=#{unmarkedColorHex}>{targetString}");
-                backgroundRenderer.color = markedColor;
+                text.SetText($"<color=#{EnemyManager.Instance.UnmarkedColorHex}>{targetString}");
+                backgroundRenderer.color = EnemyManager.Instance.MarkedColor;
                 gameObject.SetActive(true);
                 StartCoroutine(SetBackgroundRenderer());
                 IEnumerator SetBackgroundRenderer()
@@ -204,25 +187,24 @@ public class EnemySegment : MonoBehaviour
                 // No char has been marked
                 if (firstUnmarkedCharIndex == 0)
                 {
-                    text.SetText($"<color=#{unmarkedColorHex}><u>{targetString[0]}</u>{targetString.Substring(1)}");
+                    text.SetText($"<color=#{EnemyManager.Instance.UnmarkedColorHex}><u>{targetString[0]}</u>{targetString.Substring(1)}");
                 }
                 else
                 {
-                    text.SetText($"<color=#{markedColorHex}>{targetString.Substring(0, firstUnmarkedCharIndex)}" +   // Marked
-                                 $"<color=#{unmarkedColorHex}><u>{targetString[firstUnmarkedCharIndex]}</u>" +       // First unmarked char is underlined
+                    text.SetText($"<color=#{EnemyManager.Instance.MarkedColorHex}>{targetString.Substring(0, firstUnmarkedCharIndex)}" +                      // Marked
+                                 $"<color=#{EnemyManager.Instance.UnmarkedColorHex}><u>{targetString[firstUnmarkedCharIndex]}</u>" +       // First unmarked char is underlined
                                  $"{targetString.Substring(firstUnmarkedCharIndex + 1)}");                           // Remaining unmarked
                 }
                 break;
 
             case EnemySegmentState.Completed:
-                // TODO: More visual feedback
-                text.SetText($"<color=#{markedColorHex}>{targetString}");
+                text.SetText($"<color=#{EnemyManager.Instance.MarkedColorHex}>{targetString}");
 
                 break;
 
             case EnemySegmentState.Destroyed:
-                text.SetText($"<color=#{destroyedColorHex}>{targetString}");
-                backgroundRenderer.color = destroyedColor;
+                text.SetText($"<color=#{EnemyManager.Instance.DestroyedColorHex}>{targetString}");
+                backgroundRenderer.color = EnemyManager.Instance.DestroyedColor;
                 break;
 
         }
