@@ -151,13 +151,16 @@ public class EnemySegment : MonoBehaviour
 
     public void TryMarkChar(char charToTry)
     {
-        // TODO: Handle spaces
         if (CurrentState == EnemySegmentState.Active && FirstUnmarkedChar == charToTry)
         {
             firstUnmarkedCharIndex++;
             if (firstUnmarkedCharIndex == TargetString.Length)
             {
                 CurrentState = EnemySegmentState.Completed;
+            }
+            else if(char.IsWhiteSpace(FirstUnmarkedChar))
+            {
+                firstUnmarkedCharIndex++;
             }
 
             UpdateTextVisuals();

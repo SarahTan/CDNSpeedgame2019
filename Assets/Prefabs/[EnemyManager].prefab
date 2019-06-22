@@ -46,7 +46,7 @@ MonoBehaviour:
   enemyPrefab: {fileID: 3049355145912230470, guid: 1d01fb520ec547b4c95d38ffd43780cf,
     type: 3}
   enemyStrings:
-  - test
+  - test spaces
   - testing
   - hello
   - world

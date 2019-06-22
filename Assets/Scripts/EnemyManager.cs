@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
@@ -35,6 +36,11 @@ public class EnemyManager : MonoBehaviour
         {
             if (string.IsNullOrEmpty(enemyStrings[i]))
             {
+                enemyStrings.RemoveAt(i);
+            }
+            else if(!Regex.IsMatch(enemyStrings[i], "^[a-zA-Z ]*$"))    // TODO: Move expression to utils class
+            {
+                Debug.LogError($"ERROR! Enemy strings can only contain alphabets and spaces! Removing \"{enemyStrings[i]}\"");
                 enemyStrings.RemoveAt(i);
             }
             else
