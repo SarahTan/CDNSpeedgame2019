@@ -31,7 +31,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField]
     private float speed;
     [SerializeField]
-    private CharacterController charController;
+    private Rigidbody2D rb;
 
     private Camera mainCam;
 
@@ -83,7 +83,10 @@ public class PlayerController : Singleton<PlayerController>
         {
             laser.enabled = false;
         }
+    }
 
+    private void FixedUpdate()
+    {
         // Mover
         UpdateMovement();
     }
@@ -167,12 +170,16 @@ public class PlayerController : Singleton<PlayerController>
         }
 
         // Resolve movement
-        if ((moveStopTime > Time.time
+        if(numpadMovement == Vector2.zero && arrowMovment == Vector2.zero)
+        {
+            rb.velocity = Vector2.zero;
+        }
+        else if ((moveStopTime > Time.time
             && (arrowMovment != Vector2.zero
             || numpadMovement != Vector2.zero))
             || Time.time < moveStartTime + minMovedurationPerKeypress)
         {
-            charController.Move(movementDirection * speed * Time.deltaTime);
+            rb.velocity = movementDirection * speed;
             // TODO: restrict movement to cam viewport only?
         }
     }
