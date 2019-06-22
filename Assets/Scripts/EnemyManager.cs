@@ -38,7 +38,7 @@ public class EnemyManager : MonoBehaviour
             {
                 enemyStrings.RemoveAt(i);
             }
-            else if(!Regex.IsMatch(enemyStrings[i], "^[a-zA-Z ]*$"))    // TODO: Move expression to utils class
+            else if(!enemyStrings[i].OnlyContainsAlphabetsAndSpaces())
             {
                 Debug.LogError($"ERROR! Enemy strings can only contain alphabets and spaces! Removing \"{enemyStrings[i]}\"");
                 enemyStrings.RemoveAt(i);
@@ -85,8 +85,8 @@ public class EnemyManager : MonoBehaviour
                 maximumIndexForEnemyText = enemyStrings.Count - 1;
             }
 
-            // TODO: Don't hard code the min and max position values, calculate based on screen size
-            enemy.ActivateEnemy(new Vector2(Random.Range(-7f, 7f), Random.Range(-4.5f, 4.5f)), enemyStrings[Random.Range((int)minimumIndexForEnemyText, (int)maximumIndexForEnemyText)]);
+            enemy.ActivateEnemy(Utils.GetRandomPositionOnScreen(),
+                                enemyStrings[Random.Range((int)minimumIndexForEnemyText, (int)maximumIndexForEnemyText)]);
 
             /* Enemies spawn more rapidly:
              * As the game progresses

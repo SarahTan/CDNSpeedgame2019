@@ -49,7 +49,6 @@ public class EnemySegment : MonoBehaviour
 
     private RectTransform rectTransform;
 
-    private Camera mainCam;
     private Collider2D[] hitColliders = new Collider2D[MAX_COLLISIONS];
 
     #endregion
@@ -126,8 +125,6 @@ public class EnemySegment : MonoBehaviour
         unmarkedColorHex = ColorUtility.ToHtmlStringRGB(unmarkedColor);
 
         rectTransform = (RectTransform)transform;
-
-        mainCam = Camera.main;
     }
 
     private void FixedUpdate()
@@ -173,7 +170,7 @@ public class EnemySegment : MonoBehaviour
         {
             Array.Clear(hitColliders, 0, hitColliders.Length);
 
-            var mouseWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
+            var mouseWorldPos = Utils.MainCam.ScreenToWorldPoint(Input.mousePosition);
             var numHits = Physics2D.OverlapPointNonAlloc(mouseWorldPos, hitColliders);
             if (numHits > 0)
             {

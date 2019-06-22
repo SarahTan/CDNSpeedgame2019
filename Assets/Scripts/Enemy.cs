@@ -24,11 +24,10 @@ public class Enemy : MonoBehaviour
 
     // Movement
     private float nextChangeTargetPositionTime;
-    private Vector2 targetPosition;
+    private Vector3 targetPosition;
     private float currentSpeed;
 
     private Vector2 targetDirection;
-    private Plane[] frustrumPlanes;
 
     private bool usePhysics;
 
@@ -44,7 +43,6 @@ public class Enemy : MonoBehaviour
     private void Awake()
     {
         rectTransfrom = (RectTransform)transform;
-        frustrumPlanes = GeometryUtility.CalculateFrustumPlanes(Camera.main);
     }
 
     private void Update()
@@ -60,8 +58,7 @@ public class Enemy : MonoBehaviour
 
             if (Time.time > nextChangeTargetPositionTime)
             {
-                // TODO: Don't hard code the min and max position values, calculate based on screen size
-                targetPosition = new Vector2(Random.Range(-7f, 7f), Random.Range(-4.5f, 4.5f));
+                targetPosition = Utils.GetRandomPositionOnScreen();
 
                 // TODO: Also don't hard code the min and max here
                 nextChangeTargetPositionTime = Time.time + Random.Range(1f, 3f);
@@ -81,12 +78,11 @@ public class Enemy : MonoBehaviour
             rb.isKinematic = false;
 
             // Also check if it's within the camera's frustrum planes, ie is it visible
-            if (Time.time > nextChangeTargetPositionTime || !GeometryUtility.TestPlanesAABB(frustrumPlanes, collider.bounds))
+            if (Time.time > nextChangeTargetPositionTime || !collider.bounds.IsVisibleInMainCam())
             {
                 rb.velocity = Vector2.zero;
 
-                // TODO: Don't hard code the min and max position values, calculate based on screen size
-                var targetPosition = new Vector3(Random.Range(-7f, 7f), Random.Range(-4.5f, 4.5f), 0);
+                targetPosition = Utils.GetRandomPositionOnScreen();
                 targetDirection = targetPosition - transform.position;
                 targetDirection.Normalize();
 

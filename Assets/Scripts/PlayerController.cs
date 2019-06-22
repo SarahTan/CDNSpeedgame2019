@@ -32,9 +32,7 @@ public class PlayerController : Singleton<PlayerController>
     private float speed;
     [SerializeField]
     private Rigidbody2D rb;
-
-    private Camera mainCam;
-
+    
     private bool wasUsingNumpad = false; // Tracks whether the LAST PRESSED MOVEMENT was using the numpad
     private Vector2 movementDirection = Vector2.zero; // Tracks the CURRENT MOVEMENT DIRECTION
     private float moveStopTime; // Tracks the time AFTER WHICH holding a button NO LONGER MOVES
@@ -48,7 +46,7 @@ public class PlayerController : Singleton<PlayerController>
     {
         get
         {
-            return mainCam.ScreenToWorldPoint(Input.mousePosition);
+            return Utils.MainCam.ScreenToWorldPoint(Input.mousePosition);
         }
     }
 
@@ -57,12 +55,7 @@ public class PlayerController : Singleton<PlayerController>
     #endregion
 
     #region Unity Lifecycle
-
-    private void Awake()
-    {
-        mainCam = Camera.main;
-    }
-
+    
     private void Start()
     {
         UpdateCursorVisuals(false);
