@@ -53,41 +53,20 @@ public class EnemySegment : MonoBehaviour
     private RectTransform rectTransform;
 
     private Collider2D[] hitColliders = new Collider2D[MAX_COLLISIONS];
+    
+    private string targetString = string.Empty;
 
     #endregion
 
     #region Properties
-
-    private string _targetString = string.Empty;
-    private string TargetString
-    {
-        get { return _targetString; }
-        set
-        {
-            if(value != _targetString)
-            {
-                _targetString = value;
-                StartCoroutine(SetBackgroundRenderer());
-
-                IEnumerator SetBackgroundRenderer()
-                {
-                    // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds
-                    yield return null;
-
-                    backgroundRenderer.size = rectTransform.sizeDelta + Vector2.one;
-                    collider.size = rectTransform.sizeDelta;
-                }
-            }
-        }
-    }
     
     private char FirstUnmarkedChar
     {
         get
         {
-            if(TargetString.Length > firstUnmarkedCharIndex)
+            if(targetString.Length > firstUnmarkedCharIndex)
             {
-                return TargetString[firstUnmarkedCharIndex];
+                return targetString[firstUnmarkedCharIndex];
             }
             else
             {
@@ -135,13 +114,18 @@ public class EnemySegment : MonoBehaviour
     {
         CheckForRightClick();
     }
-    
+
+    private void OnDisable()
+    {
+        CurrentState = EnemySegmentState.Disabled;
+    }
+
     #endregion
 
     public void SetTargetString(string newTarget)
     {
         firstUnmarkedCharIndex = 0;
-        TargetString = newTarget;
+        targetString = newTarget;
         CurrentState = EnemySegmentState.Inactive;
     }
 
@@ -155,7 +139,7 @@ public class EnemySegment : MonoBehaviour
         if (CurrentState == EnemySegmentState.Active && FirstUnmarkedChar == charToTry)
         {
             firstUnmarkedCharIndex++;
-            if (firstUnmarkedCharIndex == TargetString.Length)
+            if (firstUnmarkedCharIndex == targetString.Length)
             {
                 CurrentState = EnemySegmentState.Completed;
             }
@@ -202,33 +186,42 @@ public class EnemySegment : MonoBehaviour
                 break;
 
             case EnemySegmentState.Inactive:
-                text.SetText($"<color=#{unmarkedColorHex}>{TargetString}");
+                text.SetText($"<color=#{unmarkedColorHex}>{targetString}");
                 backgroundRenderer.color = markedColor;
                 gameObject.SetActive(true);
+                StartCoroutine(SetBackgroundRenderer());
+                IEnumerator SetBackgroundRenderer()
+                {
+                    // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds
+                    yield return null;
+
+                    backgroundRenderer.size = rectTransform.sizeDelta + Vector2.one;
+                    collider.size = rectTransform.sizeDelta;
+                }
                 break;
 
             case EnemySegmentState.Active:
                 // No char has been marked
                 if (firstUnmarkedCharIndex == 0)
                 {
-                    text.SetText($"<color=#{unmarkedColorHex}><u>{TargetString[0]}</u>{TargetString.Substring(1)}");
+                    text.SetText($"<color=#{unmarkedColorHex}><u>{targetString[0]}</u>{targetString.Substring(1)}");
                 }
                 else
                 {
-                    text.SetText($"<color=#{markedColorHex}>{TargetString.Substring(0, firstUnmarkedCharIndex)}" +   // Marked
-                                 $"<color=#{unmarkedColorHex}><u>{TargetString[firstUnmarkedCharIndex]}</u>" +       // First unmarked char is underlined
-                                 $"{TargetString.Substring(firstUnmarkedCharIndex + 1)}");                           // Remaining unmarked
+                    text.SetText($"<color=#{markedColorHex}>{targetString.Substring(0, firstUnmarkedCharIndex)}" +   // Marked
+                                 $"<color=#{unmarkedColorHex}><u>{targetString[firstUnmarkedCharIndex]}</u>" +       // First unmarked char is underlined
+                                 $"{targetString.Substring(firstUnmarkedCharIndex + 1)}");                           // Remaining unmarked
                 }
                 break;
 
             case EnemySegmentState.Completed:
                 // TODO: More visual feedback
-                text.SetText($"<color=#{markedColorHex}>{TargetString}");
+                text.SetText($"<color=#{markedColorHex}>{targetString}");
 
                 break;
 
             case EnemySegmentState.Destroyed:
-                text.SetText($"<color=#{destroyedColorHex}>{TargetString}");
+                text.SetText($"<color=#{destroyedColorHex}>{targetString}");
                 backgroundRenderer.color = destroyedColor;
                 break;
 

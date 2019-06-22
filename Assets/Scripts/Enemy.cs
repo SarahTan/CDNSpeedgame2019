@@ -1,9 +1,16 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    #region Statics
+       
+    public static event Action<int> EnemyDestroyedEvent;
+
+    #endregion
+
     #region Fields
 
     [SerializeField]
@@ -24,6 +31,7 @@ public class Enemy : MonoBehaviour
     private string targetString;
     private int currentNumberOfSegments;
     private int currentActiveSegmentIndex;
+    private int destroyedSegmentCount;
     
     #endregion
 
@@ -62,6 +70,7 @@ public class Enemy : MonoBehaviour
             return;
         }
 
+        gameObject.SetActive(true);
         transform.position = position;
         targetString = newTarget;
 
@@ -82,17 +91,17 @@ public class Enemy : MonoBehaviour
             segments[i].SetTargetString(substring);
         }
 
+        destroyedSegmentCount = 0;
         currentActiveSegmentIndex = 0;
         segments[currentActiveSegmentIndex].ActivateSegment();
-        
+
         // Give the enemy an instantaneous force and let physics handle the rest of its movement
         var direction = Utils.GetRandomUnitVector();
-        var speed = Random.Range(minSpeed, maxSpeed);
+        var speed = UnityEngine.Random.Range(minSpeed, maxSpeed);
         rb.AddForce(direction * speed, ForceMode2D.Impulse);
 
         // Adjust collider size
         StartCoroutine(UpdateColliderSize());
-
         IEnumerator UpdateColliderSize()
         {
             // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds
@@ -115,15 +124,21 @@ public class Enemy : MonoBehaviour
             {
                 segments[++currentActiveSegmentIndex].ActivateSegment();
             }
-            else
-            {
-                // TODO: All completed, now what
-            }
         }
         else if(segment.CurrentState == EnemySegment.EnemySegmentState.Destroyed)
         {
-            // TODO: Once all segments are destroyed, we need to disable them and stop listening for this event
-        }
+            destroyedSegmentCount++;
 
+            if(destroyedSegmentCount == currentNumberOfSegments)
+            {
+                for(int i = 0; i < currentNumberOfSegments; i++)
+                {
+                    segments[i].EnemySegmentStateChangeEvent -= OnSegmentStateChanged;
+                }
+                gameObject.SetActive(false);
+
+                EnemyDestroyedEvent?.Invoke(currentNumberOfSegments);
+            }
+        }
     }
 }
