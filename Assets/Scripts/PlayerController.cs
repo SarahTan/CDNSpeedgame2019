@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : Singleton<PlayerController>
 {
-    #region Constants
+    #region Constants and Statics
 
     // Names and bindings are set in Unity's InputManager
     private const string HORIZONTAL_ARROW = "Horizontal";
@@ -13,9 +14,14 @@ public class PlayerController : Singleton<PlayerController>
     private const string HORIZONTAL_NUMPAD = "HorizontalNumpad";
     private const string VERTICAL_NUMPAD = "VerticalNumpad";
 
+    public event Action HitEnemyEvent;
+
     #endregion
 
     #region Fields
+
+    [SerializeField]
+    private float hitInvincibilityDuration;
 
     [Header("Mouse")]
     [SerializeField]
@@ -37,6 +43,8 @@ public class PlayerController : Singleton<PlayerController>
     private Vector2 movementDirection = Vector2.zero; // Tracks the CURRENT MOVEMENT DIRECTION
     private float moveStopTime; // Tracks the time AFTER WHICH holding a button NO LONGER MOVES
     private float moveStartTime; // Tracks the time that movement started
+
+    private float invincibilityEndTime = 0f;
 
     #endregion
 
@@ -95,6 +103,15 @@ public class PlayerController : Singleton<PlayerController>
             {
                 AlphabetManager.Instance.ActivateAlphabet(char.ToUpperInvariant(downChar));
             }
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (Time.time > invincibilityEndTime)
+        {
+            invincibilityEndTime = Time.time + hitInvincibilityDuration;
+            HitEnemyEvent?.Invoke();
         }
     }
 

@@ -32,7 +32,7 @@ public class GameManager : Singleton<GameManager>
         DontDestroyOnLoad(gameObject);
 
         SceneManager.activeSceneChanged += OnSceneLoaded;
-        Enemy.EnemyDestroyedEvent += Enemy_EnemyDestroyedEvent;
+        Enemy.EnemyDestroyedEvent += OnEnemyDestroyed;
     }
 
     private void OnSceneLoaded(Scene oldScene, Scene newScene)
@@ -42,15 +42,22 @@ public class GameManager : Singleton<GameManager>
             SetUpWalls();
             mainSceneUI.SetActive(true);
             CurrentScore = 0;
+            PlayerController.Instance.HitEnemyEvent += OnPlayerHitEnemy;
         }
 
         if(oldScene.name == "main")
         {
             mainSceneUI.SetActive(false);
+            PlayerController.Instance.HitEnemyEvent -= OnPlayerHitEnemy;
         }
     }
 
-    private void Enemy_EnemyDestroyedEvent(int segmentLength, int stringLength)
+    private void OnPlayerHitEnemy()
+    {
+        CurrentScore--;
+    }
+
+    private void OnEnemyDestroyed(int segmentLength, int stringLength)
     {
         UpdateScore(segmentLength, stringLength);
     }
