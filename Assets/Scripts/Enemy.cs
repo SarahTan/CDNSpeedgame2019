@@ -16,13 +16,9 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private EnemySegment enemySegmentPrefab;
     [SerializeField]
-    private BoxCollider2D collider;
+    private new BoxCollider2D collider;
     [SerializeField]
     private Rigidbody2D rb;
-    [SerializeField]
-    private float maxSpeed;
-    [SerializeField]
-    private float minSpeed;
     
     private RectTransform rectTransfrom;
 
@@ -50,13 +46,13 @@ public class Enemy : MonoBehaviour
     private void FixedUpdate()
     {
         // Clamp the speed
-        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed)
+        if (rb.velocity.sqrMagnitude > EnemyManager.Instance.MaxSpeed * EnemyManager.Instance.MaxSpeed)
         {
-            rb.velocity = rb.velocity.normalized * maxSpeed;
+            rb.velocity = rb.velocity.normalized * EnemyManager.Instance.MaxSpeed;
         }
-        else if(rb.velocity.sqrMagnitude < minSpeed * minSpeed)
+        else if(rb.velocity.sqrMagnitude < EnemyManager.Instance.MinSpeed * EnemyManager.Instance.MinSpeed)
         {
-            rb.velocity = rb.velocity.normalized * minSpeed;
+            rb.velocity = rb.velocity.normalized * EnemyManager.Instance.MinSpeed;
         }
     }
 
@@ -97,7 +93,7 @@ public class Enemy : MonoBehaviour
 
         // Give the enemy an instantaneous force and let physics handle the rest of its movement
         var direction = Utils.GetRandomUnitVector();
-        var speed = UnityEngine.Random.Range(minSpeed, maxSpeed);
+        var speed = UnityEngine.Random.Range(EnemyManager.Instance.MinSpeed, EnemyManager.Instance.MaxSpeed);
         rb.AddForce(direction * speed, ForceMode2D.Impulse);
 
         // Adjust collider size

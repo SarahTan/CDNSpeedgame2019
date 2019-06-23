@@ -34,7 +34,7 @@ public class EnemySegment : MonoBehaviour
     [SerializeField]
     private SpriteRenderer backgroundRenderer;
     [SerializeField]
-    private BoxCollider2D collider;
+    private new BoxCollider2D collider;
 
     private int firstUnmarkedCharIndex = 0;
     private RectTransform rectTransform;

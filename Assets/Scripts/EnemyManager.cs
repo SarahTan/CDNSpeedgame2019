@@ -14,6 +14,10 @@ public class EnemyManager : Singleton<EnemyManager>
     [SerializeField]
     private List<string> enemyStrings = new List<string>();
 
+    [Header("Speed")]
+    public float MaxSpeed;
+    public float MinSpeed;
+
     [Header("Colors")]
     public Color MarkedColor;
     public Color UnmarkedColor;

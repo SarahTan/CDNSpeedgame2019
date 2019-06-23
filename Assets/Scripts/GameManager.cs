@@ -57,7 +57,7 @@ public class GameManager : Singleton<GameManager>
 
     private void SetUpWalls()
     {
-        var extents = Utils.GetScreenExtents() + Vector2.one;
+        var extents = Utils.GetScreenExtents() + new Vector2(0.5f, 0.5f);
 
         var rightWall = Instantiate(wallPrefab);
         rightWall.transform.position = new Vector2(extents.x, 0f);

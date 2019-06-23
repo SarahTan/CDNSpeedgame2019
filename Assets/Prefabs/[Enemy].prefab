@@ -93,8 +93,6 @@ MonoBehaviour:
     type: 3}
   collider: {fileID: 1971051881319027275}
   rb: {fileID: 7648623021300405972}
-  maxSpeed: 1
-  minSpeed: 0.1
 --- !u!61 &1971051881319027275
 BoxCollider2D:
   m_ObjectHideFlags: 0
