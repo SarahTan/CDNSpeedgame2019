@@ -64,18 +64,18 @@ public class PlayerController : Singleton<PlayerController>
 
     private void Update()
     {
-        // Mouse
         LaserIsActive = Input.GetMouseButton(0);
         if (LaserIsActive)
         {
+            var playerToReticle = ReticleCenter.ToVector3() - transform.position;
+
+            // Cast a ray from the player to the ReticleCenter to check if there's anything blocking the laser.
+            // If it hits something, the laser ends at the hit point, else the laser ends at the ReticleCenter. 
+            var hit = Physics2D.Raycast(transform.position, playerToReticle, playerToReticle.magnitude, (int)LayerMasks.LaserBlocker);
             laser.SetPosition(0, transform.position);
-            laser.SetPosition(1, ReticleCenter);
-            laser.enabled = true;
+            laser.SetPosition(1, hit.collider ? hit.point : ReticleCenter);
         }
-        else
-        {
-            laser.enabled = false;
-        }
+        laser.enabled = LaserIsActive;
     }
 
     private void FixedUpdate()

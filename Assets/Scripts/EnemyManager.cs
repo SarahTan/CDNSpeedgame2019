@@ -6,13 +6,6 @@ using UnityEngine;
 
 public class EnemyManager : Singleton<EnemyManager>
 {
-    #region Statics
-
-    public static int ENEMY_LAYERMASK = 1 << 8;             // 8: Layer of "Enemy"
-    public static int ENEMY_SEGMENT_LAYERMASK = 1 << 9;     // 9: Layer of "EnemySegment"
-
-    #endregion
-
     #region Fields
 
     [SerializeField]

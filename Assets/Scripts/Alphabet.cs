@@ -97,15 +97,14 @@ public class Alphabet : MonoBehaviour
 
         // Unfortunately, the bounds don't seem to respect scale, so we have to manually calculate the correct box size
         var boxSize = Vector3.Scale(text.bounds.size, transform.lossyScale);
-        var numHits = Physics2D.OverlapBoxNonAlloc(transform.position, boxSize, 0f, hitColliders, EnemyManager.ENEMY_LAYERMASK);
+        var numHits = Physics2D.OverlapBoxNonAlloc(transform.position, boxSize, 0f, hitColliders, (int)LayerMasks.Enemy);
         if (numHits > 0)
         {
             foreach (var collider in hitColliders)
             {
-                // TODO: Create layer and tag manager and use variable here instead 
                 if (collider != null)
                 {
-                    if (collider.CompareTag("Enemy"))
+                    if (collider.CompareTag(Tags.Enemy))
                     {
                         var enemy = collider.GetComponent<Enemy>();
                         if (enemy != null)

@@ -54,4 +54,14 @@ public static class Utils
         float angleRadians = UnityEngine.Random.Range(0, Mathf.PI * 2);
         return new Vector2(Mathf.Sin(angleRadians), Mathf.Cos(angleRadians));
     }
+
+    public static Vector3 ToVector3(this Vector2 v)
+    {
+        return new Vector3(v.x, v.y);
+    }
+
+    public static Vector2 ToVector2(this Vector3 v)
+    {
+        return new Vector2(v.x, v.y);
+    }
 }
