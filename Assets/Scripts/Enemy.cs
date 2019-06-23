@@ -7,7 +7,7 @@ public class Enemy : MonoBehaviour
 {
     #region Statics
        
-    public static event Action<int> EnemyDestroyedEvent;
+    public static event Action<int, int> EnemyDestroyedEvent;
 
     #endregion
 
@@ -141,7 +141,7 @@ public class Enemy : MonoBehaviour
                 collider.enabled = false;
                 gameObject.SetActive(false);
 
-                EnemyDestroyedEvent?.Invoke(currentNumberOfSegments);
+                EnemyDestroyedEvent?.Invoke(currentNumberOfSegments, targetString.Length);
             }
         }
     }
