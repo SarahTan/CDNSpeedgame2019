@@ -45,3 +45,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   alphabetPrefab: {fileID: 5150270246343682397, guid: a49731222d9781a4c8b6ac98ad41a482,
     type: 3}
+  AlphabetSpeed: 2

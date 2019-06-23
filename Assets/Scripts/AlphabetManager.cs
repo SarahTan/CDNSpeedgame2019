@@ -10,6 +10,8 @@ public class AlphabetManager : Singleton<AlphabetManager>
     [SerializeField]
     private Alphabet alphabetPrefab;
 
+    public float AlphabetSpeed;
+
     private List<Alphabet> alphabets = new List<Alphabet>();
 
     #endregion

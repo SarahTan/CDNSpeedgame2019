@@ -85,8 +85,7 @@ public class EnemyManager : Singleton<EnemyManager>
             var enemy = enemies.FirstOrDefault(e => !e.isActiveAndEnabled);
             if (enemy == null)
             {
-                enemy = Instantiate(enemyPrefab);
-                enemy.transform.parent = transform;
+                enemy = Instantiate(enemyPrefab, transform);
                 enemies.Add(enemy);
             }
 

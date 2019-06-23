@@ -172,6 +172,7 @@ public class EnemySegment : MonoBehaviour
                 text.SetText($"<color=#{EnemyManager.Instance.UnmarkedColorHex}>{targetString}");
                 backgroundRenderer.color = EnemyManager.Instance.MarkedColor;
                 gameObject.SetActive(true);
+                collider.enabled = true;
                 StartCoroutine(SetBackgroundRenderer());
                 IEnumerator SetBackgroundRenderer()
                 {

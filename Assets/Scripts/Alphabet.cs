@@ -15,8 +15,6 @@ public class Alphabet : MonoBehaviour
     #region Fields
 
     [SerializeField]
-    private float speed;
-    [SerializeField]
     private TextMeshPro text;
 
     PlayerController player;
@@ -78,7 +76,7 @@ public class Alphabet : MonoBehaviour
         {
             if (player.LaserIsActive)
             {
-                transform.position = Vector2.MoveTowards(player.transform.position, player.ReticleCenter, speed * Time.fixedDeltaTime * ++steps);
+                transform.position = Vector2.MoveTowards(player.transform.position, player.ReticleCenter, AlphabetManager.Instance.AlphabetSpeed * Time.fixedDeltaTime * ++steps);
 
                 if (Vector2.Distance(transform.position, player.ReticleCenter) < Mathf.Epsilon)
                 {

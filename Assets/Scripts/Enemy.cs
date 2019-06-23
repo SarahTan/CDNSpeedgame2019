@@ -104,9 +104,12 @@ public class Enemy : MonoBehaviour
         StartCoroutine(UpdateColliderSize());
         IEnumerator UpdateColliderSize()
         {
-            // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds
-            yield return new WaitForEndOfFrame();
+            // Wait a frame so the GUI has rendered, the rect transform will have the updated bounds based on the GUI,
+            // and the gameobject/collider has moved to the correct position and won't trigger collision detection in the wrong spot
+            yield return null;
+
             collider.size = rectTransfrom.sizeDelta;
+            collider.enabled = true;
         }
     }
 
@@ -135,6 +138,7 @@ public class Enemy : MonoBehaviour
                 {
                     segments[i].EnemySegmentStateChangeEvent -= OnSegmentStateChanged;
                 }
+                collider.enabled = false;
                 gameObject.SetActive(false);
 
                 EnemyDestroyedEvent?.Invoke(currentNumberOfSegments);
