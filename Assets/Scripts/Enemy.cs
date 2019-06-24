@@ -130,15 +130,20 @@ public class Enemy : MonoBehaviour
 
             if(destroyedSegmentCount == currentNumberOfSegments)
             {
-                for(int i = 0; i < currentNumberOfSegments; i++)
-                {
-                    segments[i].EnemySegmentStateChangeEvent -= OnSegmentStateChanged;
-                }
-                collider.enabled = false;
-                gameObject.SetActive(false);
-
-                EnemyDestroyedEvent?.Invoke(currentNumberOfSegments, targetString.Length);
+                DestroyEnemy();
             }
         }
+    }
+
+    public void DestroyEnemy()
+    {
+        for (int i = 0; i < currentNumberOfSegments; i++)
+        {
+            segments[i].EnemySegmentStateChangeEvent -= OnSegmentStateChanged;
+        }
+        collider.enabled = false;
+        gameObject.SetActive(false);
+
+        EnemyDestroyedEvent?.Invoke(currentNumberOfSegments, targetString.Length);
     }
 }

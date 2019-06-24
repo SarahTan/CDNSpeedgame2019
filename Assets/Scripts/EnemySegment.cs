@@ -211,7 +211,7 @@ public class EnemySegment : MonoBehaviour
         }
     }
 
-    private void DestroySegment()
+    public void DestroySegment()
     {
         // The player can now pass through this segment
         collider.enabled = false;

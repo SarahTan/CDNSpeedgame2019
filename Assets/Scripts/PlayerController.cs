@@ -108,14 +108,46 @@ public class PlayerController : Singleton<PlayerController>
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (Time.time > invincibilityEndTime)
+        if (collision.gameObject.layer == 8) // Hits an enemy segment
         {
-            invincibilityEndTime = Time.time + hitInvincibilityDuration;
-            HitEnemyEvent?.Invoke();
+            var enemySegment = collision.collider.GetComponent<EnemySegment>();
+            if (enemySegment != null)
+            {
+                BadStuffHappens("Movement"); // TODO: Actually make bad stuff happen to everything BUT movement
+
+                if (Time.time > invincibilityEndTime)
+                {
+                    enemySegment.DestroySegment();
+
+                    invincibilityEndTime = Time.time + hitInvincibilityDuration;
+                    HitEnemyEvent?.Invoke();
+                }
+            }
         }
     }
 
     #endregion
+
+    // TODO: Extract into a Bad Stuff Manager?
+    // TODO: Use an enum for bad stuff?
+    /// <summary>
+    /// Makes bad stuff happen
+    /// </summary>
+    /// <param name="BadStuffCategories">The categories of which bad stuff happens. Only one thing will happen, currently</param>
+    private void BadStuffHappens(params string[] BadStuffCategories)
+    {
+        var chosenCategory = new System.Random().Next(0, BadStuffCategories.Length);
+        switch (BadStuffCategories[chosenCategory])
+        {
+            case "Movement":
+                this.speed = this.speed * 0.98f;
+                Debug.Log("Make bad stuff happen to movement.");
+                break;
+            default:
+                Debug.Log("Bad stuff happened while making bad stuff happen. Or just lose HP.");
+                break;
+        }
+    }
 
     /// <summary>
     /// Movement for player using Arrow Keys and Numpad
