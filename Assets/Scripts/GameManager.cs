@@ -86,6 +86,7 @@ public class GameManager : Singleton<GameManager>
     private void UpdateScore(int segmentLength, int stringLength)
     {
         // TODO: Some smarter scoring system
+        // This totally doesn't work right now. You can cheese it by just colliding into stuff and getting points
         CurrentScore += segmentLength + stringLength;
     }
 
