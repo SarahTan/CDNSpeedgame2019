@@ -6,7 +6,7 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     #region Statics
-       
+
     public static event Action<int, int> EnemyDestroyedEvent;
 
     #endregion
@@ -19,7 +19,7 @@ public class Enemy : MonoBehaviour
     private new BoxCollider2D collider;
     [SerializeField]
     private Rigidbody2D rb;
-    
+
     private RectTransform rectTransfrom;
 
     private List<EnemySegment> segments = new List<EnemySegment>();
@@ -28,7 +28,7 @@ public class Enemy : MonoBehaviour
     private int currentNumberOfSegments;
     private int currentActiveSegmentIndex;
     private int destroyedSegmentCount;
-    
+
     #endregion
 
     #region Properties
@@ -50,7 +50,7 @@ public class Enemy : MonoBehaviour
         {
             rb.velocity = rb.velocity.normalized * EnemyManager.Instance.MaxSpeed;
         }
-        else if(rb.velocity.sqrMagnitude < EnemyManager.Instance.MinSpeed * EnemyManager.Instance.MinSpeed)
+        else if (rb.velocity.sqrMagnitude < EnemyManager.Instance.MinSpeed * EnemyManager.Instance.MinSpeed)
         {
             rb.velocity = rb.velocity.normalized * EnemyManager.Instance.MinSpeed;
         }
@@ -72,9 +72,9 @@ public class Enemy : MonoBehaviour
 
         // TODO: Randomize the length instead of hardcoding the value 3 everywhere
         currentNumberOfSegments = Mathf.CeilToInt(targetString.Length / 3f);
-        for(int i = 0; i < currentNumberOfSegments; i++)
+        for (int i = 0; i < currentNumberOfSegments; i++)
         {
-            if(segments.Count == i)
+            if (segments.Count == i)
             {
                 var newSegment = Instantiate(enemySegmentPrefab);
                 newSegment.transform.SetParent(transform, worldPositionStays: false);
@@ -83,7 +83,7 @@ public class Enemy : MonoBehaviour
 
             segments[i].EnemySegmentStateChangeEvent += OnSegmentStateChanged;
 
-            var substring = targetString.Substring(i * 3, Mathf.Min(3, targetString.Length - (i*3)));
+            var substring = targetString.Substring(i * 3, Mathf.Min(3, targetString.Length - (i * 3)));
             segments[i].SetTargetString(substring);
         }
 
@@ -116,22 +116,30 @@ public class Enemy : MonoBehaviour
 
     private void OnSegmentStateChanged(EnemySegment segment)
     {
-        // Activate the next segment
-        if(segment.CurrentState == EnemySegment.EnemySegmentState.Completed)
+        switch (segment.CurrentState)
         {
-            if (currentActiveSegmentIndex + 1 < currentNumberOfSegments)
-            {
-                segments[++currentActiveSegmentIndex].ActivateSegment();
-            }
-        }
-        else if(segment.CurrentState == EnemySegment.EnemySegmentState.Destroyed)
-        {
-            destroyedSegmentCount++;
+            // Activate the next segment
+            case EnemySegment.EnemySegmentState.Completed:
 
-            if(destroyedSegmentCount == currentNumberOfSegments)
-            {
+                if (currentActiveSegmentIndex + 1 < currentNumberOfSegments)
+                {
+                    segments[++currentActiveSegmentIndex].ActivateSegment();
+                }
+                break;
+
+            case EnemySegment.EnemySegmentState.Destroyed:
+
+                destroyedSegmentCount++;
+
+                if (destroyedSegmentCount == currentNumberOfSegments)
+                {
+                    DestroyEnemy();
+                }
+                break;
+            case EnemySegment.EnemySegmentState.Collided:
+                // TODO: Decide if we destroy the enemy or break off earlier pieces
                 DestroyEnemy();
-            }
+                break;
         }
     }
 

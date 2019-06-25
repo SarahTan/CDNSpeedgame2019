@@ -22,7 +22,8 @@ public class EnemySegment : MonoBehaviour
         Inactive = 1,       // Has targetString but can't start typing
         Active = 2,         // Can start typing
         Completed = 3,      // Finished typing, waiting to be destroyed
-        Destroyed = 4       // Mouse has already right clicked it
+        Destroyed = 4,      // Mouse has already right clicked it
+        Collided = 5        // Was collided into - drop assumptions that it has been typed
     }
 
     #endregion

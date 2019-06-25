@@ -149,6 +149,7 @@ public class PlayerController : Singleton<PlayerController>
                 if (Time.time > invincibilityEndTime)
                 {
                     enemySegment.DestroySegment();
+                    enemySegment.CurrentState = EnemySegment.EnemySegmentState.Collided; // Override the state
 
                     invincibilityEndTime = Time.time + hitInvincibilityDuration;
                     HitEnemyEvent?.Invoke();
