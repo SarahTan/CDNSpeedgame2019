@@ -47,8 +47,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: beffaecc69a078146ae49c6db530f950, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitInvincibilityDuration: 0
   cursorTex: {fileID: 2800000, guid: ffb9ff5d20afbcd4eb771def3eb53aae, type: 3}
   laser: {fileID: 4280708891273526408}
+  scatteredLaser: {fileID: 4280708891273526408}
   maxMoveDurationPerKeypress: 0.7
   minMovedurationPerKeypress: 0.3
   speed: 5

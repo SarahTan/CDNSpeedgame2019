@@ -43,6 +43,7 @@ public class PlayerController : Singleton<PlayerController>
     private Vector2 movementDirection = Vector2.zero; // Tracks the CURRENT MOVEMENT DIRECTION
     private float moveStopTime; // Tracks the time AFTER WHICH holding a button NO LONGER MOVES
     private float moveStartTime; // Tracks the time that movement started
+    private float laserIncrement = 1f;
 
     private float invincibilityEndTime = 0f;
 
@@ -68,6 +69,12 @@ public class PlayerController : Singleton<PlayerController>
     {
         UpdateCursorVisuals(false);
         moveStopTime = Time.time;
+
+        // Start the laser
+        laser.startWidth = 0.5f;
+        laser.endWidth = 0.7f;
+        laser.startColor = new Color(0.5f, 0, 0);
+        laser.endColor = new Color(0, 0, 0.5f);
     }
 
     private void Update()
@@ -82,7 +89,29 @@ public class PlayerController : Singleton<PlayerController>
             var hit = Physics2D.Raycast(transform.position, playerToReticle, playerToReticle.magnitude, (int)LayerMasks.LaserBlocker);
             laser.SetPosition(0, transform.position);
             laser.SetPosition(1, hit.collider ? hit.point : ReticleCenter);
+
+            var newR = laser.endColor.r + Time.deltaTime * laserIncrement;
+            
+            // Since we're reversing polarity, we can't afford to have 2 cycles in the wrong polarity
+            if (newR > 0.9)
+            {
+                newR = 0.9f;
+                laserIncrement = -laserIncrement;
+            }
+            else if (newR < 0.5)
+            {
+                newR = 0.5f;
+                laserIncrement = -laserIncrement;
+            }
+            laser.endColor = new Color(newR, newR - 0.5f, newR - 0.5f);
+            laser.startColor = new Color(newR - 0.3f, newR - 0.3f, newR);
+
+            if (hit.collider != null)
+            {
+                // TODO: Set a scattered laser
+            }
         }
+
         laser.enabled = LaserIsActive;
     }
 
