@@ -142,7 +142,8 @@ public class PlayerController : Singleton<PlayerController>
         if (collision.gameObject.layer == (int)Layers.Enemy) // Hits an enemy segment
         {
             var enemySegment = collision.collider.GetComponentInParent<EnemySegment>();
-            if (enemySegment != null)
+            if (enemySegment != null && 
+                enemySegment.CurrentState != EnemySegment.EnemySegmentState.Spawning)
             {
                 BadStuffHappens("Movement"); // TODO: Actually make bad stuff happen to everything BUT movement
 

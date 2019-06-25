@@ -18,6 +18,7 @@ public class EnemySegment : MonoBehaviour
     // TODO: Might want to convert this into a proper state machine if stuff gets more complicated
     public enum EnemySegmentState
     {
+        Spawning = -1,      // Immune to most forms of interaction with the player
         Disabled = 0,       // Not in play
         Inactive = 1,       // Has targetString but can't start typing
         Active = 2,         // Can start typing
@@ -115,7 +116,7 @@ public class EnemySegment : MonoBehaviour
 
     public void ActivateSegment()
     {
-        CurrentState = EnemySegmentState.Active;
+        CurrentState = EnemySegmentState.Spawning;
     }
 
     public void TryMarkChar(char charToTry)
