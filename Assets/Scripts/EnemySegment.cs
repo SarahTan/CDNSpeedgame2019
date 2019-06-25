@@ -34,7 +34,7 @@ public class EnemySegment : MonoBehaviour
     [SerializeField]
     private SpriteRenderer backgroundRenderer;
     [SerializeField]
-    private new BoxCollider2D collider;
+    private CircleCollider2D[] colliders;
 
     private int firstUnmarkedCharIndex = 0;
     private RectTransform rectTransform;
@@ -172,7 +172,7 @@ public class EnemySegment : MonoBehaviour
                 text.SetText($"<color=#{EnemyManager.Instance.UnmarkedColorHex}>{targetString}");
                 backgroundRenderer.color = EnemyManager.Instance.MarkedColor;
                 gameObject.SetActive(true);
-                collider.enabled = true;
+                EnableColliders(true);
                 StartCoroutine(SetBackgroundRenderer());
                 IEnumerator SetBackgroundRenderer()
                 {
@@ -180,7 +180,9 @@ public class EnemySegment : MonoBehaviour
                     yield return null;
 
                     backgroundRenderer.size = rectTransform.sizeDelta + Vector2.one;
-                    collider.size = rectTransform.sizeDelta;
+                    
+                    // TODO: Fix this
+                    //colliders.size = rectTransform.sizeDelta;
                 }
                 break;
 
@@ -214,8 +216,16 @@ public class EnemySegment : MonoBehaviour
     public void DestroySegment()
     {
         // The player can now pass through this segment
-        collider.enabled = false;
+        EnableColliders(false);
 
         CurrentState = EnemySegmentState.Destroyed;
+    }
+
+    private void EnableColliders(bool enable)
+    {
+        foreach(var collider in colliders)
+        {
+            collider.enabled = enable;
+        }
     }
 }

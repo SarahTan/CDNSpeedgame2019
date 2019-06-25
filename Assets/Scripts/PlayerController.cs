@@ -108,9 +108,11 @@ public class PlayerController : Singleton<PlayerController>
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.layer == 8) // Hits an enemy segment
+        // Even though we are only interested in EnemySegment, we must check against Enemy as it has a Rigidbody and hence will treat the
+        // children EnemySegment's colliders as its own compound colliders, and be the one sending the collision events instead.
+        if (collision.gameObject.layer == (int)Layers.Enemy) // Hits an enemy segment
         {
-            var enemySegment = collision.collider.GetComponent<EnemySegment>();
+            var enemySegment = collision.collider.GetComponentInParent<EnemySegment>();
             if (enemySegment != null)
             {
                 BadStuffHappens("Movement"); // TODO: Actually make bad stuff happen to everything BUT movement
