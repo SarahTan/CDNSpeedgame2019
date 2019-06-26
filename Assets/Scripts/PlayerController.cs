@@ -152,7 +152,7 @@ public class PlayerController : Singleton<PlayerController>
             if (enemySegment != null && 
                 enemySegment.CurrentState != CloudSegment.CloudSegmentState.Spawning)
             {
-                BadStuffHappens("Movement"); // TODO: Actually make bad stuff happen to everything BUT movement
+                BadStuffHappens("Targeting", "Typing"); // TODO: Actually make bad stuff happen to everything BUT movement
 
                 if (Time.time > invincibilityEndTime)
                 {
@@ -179,7 +179,9 @@ public class PlayerController : Singleton<PlayerController>
         var chosenCategory = new System.Random().Next(0, BadStuffCategories.Length);
         switch (BadStuffCategories[chosenCategory])
         {
-            case "Movement":
+            case "Targeting":
+            case "Typing":
+            case "Moving":
                 this.speed = this.speed * 0.98f;
                 Debug.Log("Make bad stuff happen to movement.");
                 break;
@@ -205,7 +207,7 @@ public class PlayerController : Singleton<PlayerController>
             && arrowMovment != Vector2.zero)
         {
             // Trivial case - can't have both inputs happen at the same time
-            Debug.LogError("BAD STUFF HAPPENS! Double Move.");
+            BadStuffHappens("Targeting", "Typing");
             return;
         }
         
@@ -247,7 +249,7 @@ public class PlayerController : Singleton<PlayerController>
             || arrowMovment != Vector2.zero)
         {
             movementDirection = Vector2.zero;
-            Debug.LogError("BAD STUFF HAPPENS! Illegal Move.");
+            BadStuffHappens("Targeting", "Typing");
             return;
         }
 
