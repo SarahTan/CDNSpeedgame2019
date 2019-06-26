@@ -14,6 +14,9 @@ public class EnemyManager : Singleton<EnemyManager>
     [SerializeField]
     private List<string> enemyStrings = new List<string>();
 
+    [Header("Spawning")]
+    public float SpawnDuration;
+
     [Header("Speed")]
     public float MaxSpeed;
     public float MinSpeed;
@@ -68,7 +71,7 @@ public class EnemyManager : Singleton<EnemyManager>
             }
         }
 
-        enemyStrings.OrderBy(x => x.Length);
+        enemyStrings.Sort((x, y) => x.Length.CompareTo(y.Length));
 
         StartCoroutine(SpawnEnemiesRoutine());
     }

@@ -56,6 +56,7 @@ MonoBehaviour:
   - manager
   - alphabet
   - player
+  SpawnDuration: 1
   MaxSpeed: 1.5
   MinSpeed: 0.5
   MarkedColor: {r: 0, g: 0, b: 0, a: 1}

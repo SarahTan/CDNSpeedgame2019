@@ -18,8 +18,8 @@ public class EnemySegment : MonoBehaviour
     // TODO: Might want to convert this into a proper state machine if stuff gets more complicated
     public enum EnemySegmentState
     {
-        Spawning = -1,      // Immune to most forms of interaction with the player
         Disabled = 0,       // Not in play
+        Spawning = -1,      // Immune to most forms of interaction with the player
         Inactive = 1,       // Has targetString but can't start typing
         Active = 2,         // Can start typing
         Completed = 3,      // Finished typing, waiting to be destroyed
@@ -111,12 +111,12 @@ public class EnemySegment : MonoBehaviour
     {
         firstUnmarkedCharIndex = 0;
         targetString = newTarget;
-        CurrentState = EnemySegmentState.Inactive;
+        CurrentState = EnemySegmentState.Spawning;
     }
 
     public void ActivateSegment()
     {
-        CurrentState = EnemySegmentState.Spawning;
+        CurrentState = EnemySegmentState.Active;
     }
 
     public void TryMarkChar(char charToTry)
@@ -170,11 +170,10 @@ public class EnemySegment : MonoBehaviour
                 gameObject.SetActive(false);
                 break;
 
-            case EnemySegmentState.Inactive:
+            case EnemySegmentState.Spawning:
                 text.SetText($"<color=#{EnemyManager.Instance.UnmarkedColorHex}>{targetString}");
                 backgroundRenderer.color = EnemyManager.Instance.MarkedColor;
                 gameObject.SetActive(true);
-                EnableColliders(true);
                 StartCoroutine(SetBackgroundRenderer());
                 IEnumerator SetBackgroundRenderer()
                 {
@@ -182,10 +181,14 @@ public class EnemySegment : MonoBehaviour
                     yield return null;
 
                     backgroundRenderer.size = rectTransform.sizeDelta + Vector2.one;
-                    
+
                     // TODO: Fix this
                     //colliders.size = rectTransform.sizeDelta;
                 }
+                break;
+
+            case EnemySegmentState.Inactive:
+                EnableColliders(true);
                 break;
 
             case EnemySegmentState.Active:

@@ -28,8 +28,7 @@ public class Enemy : MonoBehaviour
     private int currentNumberOfSegments;
     private int currentActiveSegmentIndex;
     private int destroyedSegmentCount;
-    private float timeTillSpawn;
-    private float scale;
+    private Vector3 originalScale;
 
     #endregion
 
@@ -43,6 +42,7 @@ public class Enemy : MonoBehaviour
     private void Awake()
     {
         rectTransfrom = (RectTransform)transform;
+        originalScale = transform.localScale;
     }
 
     private void FixedUpdate()
@@ -56,82 +56,53 @@ public class Enemy : MonoBehaviour
         {
             rb.velocity = rb.velocity.normalized * EnemyManager.Instance.MinSpeed;
         }
-
-        if (timeTillSpawn > 0)
-        {
-            timeTillSpawn = timeTillSpawn - Time.deltaTime;
-            if (timeTillSpawn < 0)
-            {
-                timeTillSpawn = 0;
-                FinishSpawning();
-            }
-            else
-            {
-                transform.localScale = new Vector3(scale - timeTillSpawn*scale, scale - timeTillSpawn*scale);
-
-                // Adjust collider size
-                StartCoroutine(UpdateColliderSize());
-                IEnumerator UpdateColliderSize()
-                {
-                    // Wait a frame so the GUI has rendered, the rect transform will have the updated bounds based on the GUI,
-                    // and the gameobject/collider has moved to the correct position and won't trigger collision detection in the wrong spot
-                    yield return null;
-
-                    collider.size = rectTransfrom.sizeDelta;
-                    collider.enabled = true;
-                }
-            }
-        }
     }
 
     #endregion
 
-    private void FinishSpawning()
+    private IEnumerator RunSpawnAnimation()
     {
-        this.gameObject.layer = (int)Layers.Enemy;
-        segments[0].ActivateSegment();
+        // Scale up
+        var startTime = Time.time;
+        while (transform.localScale.x < originalScale.x)
+        {
+            yield return null;
+            var elapsedTime = Time.time - startTime;
+
+            // TODO: Use an animation curve for snappier feeling animation
+            transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, elapsedTime / EnemyManager.Instance.SpawnDuration);
+        }
+        transform.localScale = originalScale;
 
         foreach (var segment in segments)
         {
-            segment.CurrentState = EnemySegment.EnemySegmentState.Active;
+            segment.CurrentState = EnemySegment.EnemySegmentState.Inactive;
         }
 
-        // Adjust collider size
-        StartCoroutine(UpdateColliderSize());
-        IEnumerator UpdateColliderSize()
-        {
-            // Wait a frame so the GUI has rendered, the rect transform will have the updated bounds based on the GUI,
-            // and the gameobject/collider has moved to the correct position and won't trigger collision detection in the wrong spot
-            yield return null;
+        // Wait a frame so the GUI has updated, and the rect transform will have the latest bounds based on the GUI
+        yield return null;
+        collider.size = rectTransfrom.sizeDelta;
+        collider.enabled = true;
 
-            collider.size = rectTransfrom.sizeDelta;
-            collider.enabled = true;
-        }
+        // Give the enemy an instantaneous force and let physics handle the rest of its movement
+        var direction = Utils.GetRandomUnitVector();
+        var speed = UnityEngine.Random.Range(EnemyManager.Instance.MinSpeed, EnemyManager.Instance.MaxSpeed);
+        rb.AddForce(direction * speed, ForceMode2D.Impulse);
     }
-
+    
     public void ActivateEnemy(Vector2 position, string newTarget)
     {
-        // Initialize this as spawning
-        rectTransfrom = (RectTransform)transform;
-        timeTillSpawn = 1.0f;
-        scale = this.transform.localScale.x;
-        this.transform.localScale = Vector3.zero;
-
-        // Ignore this until it's spawned
-        // TODO: Still blocks lasers.
-        this.gameObject.layer = (int)Layers.IgnoreRaycast;
-
         if (string.IsNullOrEmpty(newTarget))
         {
             Debug.LogError("ENEMY TARGET STRING IS NULL! :(", this);
             return;
         }
 
-        gameObject.SetActive(true);
         transform.position = position;
+        transform.localScale = Vector3.zero;
+        collider.enabled = false;
         targetString = newTarget;
-
-        // TODO: Randomize the length instead of hardcoding the value 3 everywhere
+        
         currentNumberOfSegments = Mathf.CeilToInt(targetString.Length / 3f);
         for (int i = 0; i < currentNumberOfSegments; i++)
         {
@@ -150,11 +121,10 @@ public class Enemy : MonoBehaviour
 
         destroyedSegmentCount = 0;
         currentActiveSegmentIndex = 0;
+        
+        gameObject.SetActive(true);
 
-        // Give the enemy an instantaneous force and let physics handle the rest of its movement
-        var direction = Utils.GetRandomUnitVector();
-        var speed = UnityEngine.Random.Range(EnemyManager.Instance.MinSpeed, EnemyManager.Instance.MaxSpeed);
-        rb.AddForce(direction * speed, ForceMode2D.Impulse);
+        StartCoroutine(RunSpawnAnimation());
     }
 
     public void OnAlphabetImpact(char charToTry)
