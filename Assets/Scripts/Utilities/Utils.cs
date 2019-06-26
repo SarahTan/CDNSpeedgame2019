@@ -41,6 +41,28 @@ public static class Utils
         return MainCam.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
     }
     
+    public static Vector3 GetRandomPositionJustOutsideScreen()
+    {
+        var extents = GetScreenExtents() + Vector2.one;
+        var value = Random.value;
+        if (value < 0.25f)
+        {
+            return new Vector2(-extents.x, Random.Range(-extents.y, extents.y));
+        }
+        else if (value < 0.5f)
+        {
+            return new Vector2(extents.x, Random.Range(-extents.y, extents.y));
+        }
+        else if (value < 0.75f)
+        {
+            return new Vector2(Random.Range(-extents.x, extents.x), -extents.y);
+        }
+        else
+        {
+            return new Vector2(Random.Range(-extents.x, extents.x), extents.y);
+        }
+    }
+
     public static Vector3 GetRandomPositionOnScreen()
     {
         var screenExtents = GetScreenExtents();

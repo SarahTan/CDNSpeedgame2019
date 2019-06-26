@@ -45,6 +45,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 3049355145912230470, guid: 1d01fb520ec547b4c95d38ffd43780cf,
     type: 3}
+  starPrefab: {fileID: 1585565366090150529, guid: 8cd17647e4350254b9706399d5ede049,
+    type: 3}
   enemyStrings:
   - test spaces
   - testing
@@ -56,6 +58,7 @@ MonoBehaviour:
   - manager
   - alphabet
   - player
+  starSpeed: 7.5
   SpawnDuration: 1
   MaxSpeed: 1.5
   MinSpeed: 0.5

@@ -10,10 +10,16 @@ public class EnemyManager : Singleton<EnemyManager>
 
     [SerializeField]
     private Enemy enemyPrefab;
+    [SerializeField]
+    private ShootingStar starPrefab;
 
     [SerializeField]
     private List<string> enemyStrings = new List<string>();
 
+    [Header("Stars")]
+    public float starSpeed;
+
+    [Header("Clouds")]
     [Header("Spawning")]
     public float SpawnDuration;
 
@@ -34,6 +40,7 @@ public class EnemyManager : Singleton<EnemyManager>
     public string DestroyedColorHex;
 
     private List<Enemy> enemies = new List<Enemy>();
+    private List<ShootingStar> stars = new List<ShootingStar>();
     
     #endregion
 
@@ -74,9 +81,28 @@ public class EnemyManager : Singleton<EnemyManager>
         enemyStrings.Sort((x, y) => x.Length.CompareTo(y.Length));
 
         StartCoroutine(SpawnEnemiesRoutine());
+        StartCoroutine(SpawnStarsRoutine());
     }
 
     #endregion
+
+    private IEnumerator SpawnStarsRoutine()
+    {
+        while (true)
+        {
+            var star = stars.FirstOrDefault(s => !s.isActiveAndEnabled);
+            if (star == null)
+            {
+                star = Instantiate(starPrefab, transform);
+                stars.Add(star);
+            }
+
+            star.ActivateStar(Utils.GetRandomPositionJustOutsideScreen());
+
+            // TODO: spawn rate
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
 
     private IEnumerator SpawnEnemiesRoutine()
     {
