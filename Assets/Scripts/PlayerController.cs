@@ -25,6 +25,8 @@ public class PlayerController : Singleton<PlayerController>
 
     [Header("Mouse")]
     [SerializeField]
+    private GameObject reticlePrefab;
+    [SerializeField]
     private Texture2D cursorTex;
     [SerializeField]
     private LineRenderer laser;
@@ -47,6 +49,8 @@ public class PlayerController : Singleton<PlayerController>
 
     private float invincibilityEndTime = 0f;
 
+    private GameObject reticle;
+
     #endregion
 
     #region Properties
@@ -55,7 +59,8 @@ public class PlayerController : Singleton<PlayerController>
     {
         get
         {
-            return Utils.MainCam.ScreenToWorldPoint(Input.mousePosition);
+            return reticle.transform.position.ToVector2();
+            //return Utils.MainCam.ScreenToWorldPoint(Input.mousePosition);
         }
     }
 
@@ -67,7 +72,9 @@ public class PlayerController : Singleton<PlayerController>
     
     private void Start()
     {
-        UpdateCursorVisuals(false);
+        Cursor.visible = false;
+        reticle = Instantiate(reticlePrefab, Utils.MainCam.ScreenToWorldPoint(Input.mousePosition), Quaternion.identity);
+        //UpdateCursorVisuals(false);
         moveStopTime = Time.time;
 
         // Start the laser
