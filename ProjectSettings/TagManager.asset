@@ -14,10 +14,10 @@ TagManager:
   - UI
   - 
   - 
-  - Enemy
-  - EnemySegment
+  - Cloud
+  - CloudSegment
   - Player
-  - 
+  - Star
   - 
   - 
   - 

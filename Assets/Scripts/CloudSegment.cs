@@ -5,7 +5,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 
-public class EnemySegment : MonoBehaviour
+public class CloudSegment : MonoBehaviour
 {
     #region Statics
 
@@ -16,7 +16,7 @@ public class EnemySegment : MonoBehaviour
     #region Enums
 
     // TODO: Might want to convert this into a proper state machine if stuff gets more complicated
-    public enum EnemySegmentState
+    public enum CloudSegmentState
     {
         Disabled = 0,       // Not in play
         Spawning = -1,      // Immune to most forms of interaction with the player
@@ -65,8 +65,8 @@ public class EnemySegment : MonoBehaviour
         }
     }
 
-    private EnemySegmentState _currentState = EnemySegmentState.Disabled;
-    public EnemySegmentState CurrentState
+    private CloudSegmentState _currentState = CloudSegmentState.Disabled;
+    public CloudSegmentState CurrentState
     {
         get { return _currentState; }
         set
@@ -75,7 +75,7 @@ public class EnemySegment : MonoBehaviour
             {
                 _currentState = value;
                 UpdateVisuals();
-                EnemySegmentStateChangeEvent?.Invoke(this);
+                CloudSegmentStateChangeEvent?.Invoke(this);
             }
         }
     }
@@ -84,7 +84,7 @@ public class EnemySegment : MonoBehaviour
 
     #region Events
 
-    public event Action<EnemySegment> EnemySegmentStateChangeEvent;
+    public event Action<CloudSegment> CloudSegmentStateChangeEvent;
 
     #endregion
 
@@ -102,7 +102,7 @@ public class EnemySegment : MonoBehaviour
 
     private void OnDisable()
     {
-        CurrentState = EnemySegmentState.Disabled;
+        CurrentState = CloudSegmentState.Disabled;
     }
 
     #endregion
@@ -111,22 +111,22 @@ public class EnemySegment : MonoBehaviour
     {
         firstUnmarkedCharIndex = 0;
         targetString = newTarget;
-        CurrentState = EnemySegmentState.Spawning;
+        CurrentState = CloudSegmentState.Spawning;
     }
 
     public void ActivateSegment()
     {
-        CurrentState = EnemySegmentState.Active;
+        CurrentState = CloudSegmentState.Active;
     }
 
     public void TryMarkChar(char charToTry)
     {
-        if (CurrentState == EnemySegmentState.Active && FirstUnmarkedChar == charToTry)
+        if (CurrentState == CloudSegmentState.Active && FirstUnmarkedChar == charToTry)
         {
             firstUnmarkedCharIndex++;
             if (firstUnmarkedCharIndex == targetString.Length)
             {
-                CurrentState = EnemySegmentState.Completed;
+                CurrentState = CloudSegmentState.Completed;
             }
             else if(char.IsWhiteSpace(FirstUnmarkedChar))
             {
@@ -139,7 +139,7 @@ public class EnemySegment : MonoBehaviour
 
     private void CheckForRightClick()
     {
-        if (Input.GetMouseButtonDown(1) && CurrentState == EnemySegmentState.Completed)
+        if (Input.GetMouseButtonDown(1) && CurrentState == CloudSegmentState.Completed)
         {
             Array.Clear(hitColliders, 0, hitColliders.Length);
 
@@ -151,7 +151,7 @@ public class EnemySegment : MonoBehaviour
                 {
                     if (collider != null)
                     {
-                        var segment = collider.GetComponent<EnemySegment>();
+                        var segment = collider.GetComponent<CloudSegment>();
                         if (segment != null && segment == this)
                         {
                             DestroySegment();
@@ -166,11 +166,11 @@ public class EnemySegment : MonoBehaviour
     {
         switch (CurrentState)
         {
-            case EnemySegmentState.Disabled:
+            case CloudSegmentState.Disabled:
                 gameObject.SetActive(false);
                 break;
 
-            case EnemySegmentState.Spawning:
+            case CloudSegmentState.Spawning:
                 text.SetText($"<color=#{EnemyManager.Instance.UnmarkedColorHex}>{targetString}");
                 backgroundRenderer.color = EnemyManager.Instance.MarkedColor;
                 gameObject.SetActive(true);
@@ -187,11 +187,11 @@ public class EnemySegment : MonoBehaviour
                 }
                 break;
 
-            case EnemySegmentState.Inactive:
+            case CloudSegmentState.Inactive:
                 EnableColliders(true);
                 break;
 
-            case EnemySegmentState.Active:
+            case CloudSegmentState.Active:
                 // No char has been marked
                 if (firstUnmarkedCharIndex == 0)
                 {
@@ -205,12 +205,12 @@ public class EnemySegment : MonoBehaviour
                 }
                 break;
 
-            case EnemySegmentState.Completed:
+            case CloudSegmentState.Completed:
                 text.SetText($"<color=#{EnemyManager.Instance.MarkedColorHex}>{targetString}");
 
                 break;
 
-            case EnemySegmentState.Destroyed:
+            case CloudSegmentState.Destroyed:
                 text.SetText($"<color=#{EnemyManager.Instance.DestroyedColorHex}>{targetString}");
                 backgroundRenderer.color = EnemyManager.Instance.DestroyedColor;
                 break;
@@ -223,7 +223,7 @@ public class EnemySegment : MonoBehaviour
         // The player can now pass through this segment
         EnableColliders(false);
 
-        CurrentState = EnemySegmentState.Destroyed;
+        CurrentState = CloudSegmentState.Destroyed;
     }
 
     private void EnableColliders(bool enable)

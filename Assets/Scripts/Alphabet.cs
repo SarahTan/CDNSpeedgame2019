@@ -67,7 +67,7 @@ public class Alphabet : MonoBehaviour
         // Calculate movement here so we can use Time.fixedDeltaTime and have a consistence distance traveled calculation
         UpdateMovement();
 
-        CheckForEnemyCollision();
+        CheckForCloudCollision();
     }
 
     private void UpdateMovement()
@@ -91,13 +91,13 @@ public class Alphabet : MonoBehaviour
         }
     }
 
-    private void CheckForEnemyCollision()
+    private void CheckForCloudCollision()
     {
         Array.Clear(hitColliders, 0, hitColliders.Length);
 
         // Unfortunately, the bounds don't seem to respect scale, so we have to manually calculate the correct box size
         var boxSize = Vector3.Scale(text.bounds.size, transform.lossyScale);
-        var numHits = Physics2D.OverlapBoxNonAlloc(transform.position, boxSize, 0f, hitColliders, (int)LayerMasks.Enemy);
+        var numHits = Physics2D.OverlapBoxNonAlloc(transform.position, boxSize, 0f, hitColliders, (int)LayerMasks.Cloud);
         if (numHits > 0)
         {
             foreach (var collider in hitColliders)
@@ -106,10 +106,10 @@ public class Alphabet : MonoBehaviour
                 {
                     if (collider.CompareTag(Tags.Enemy))
                     {
-                        var enemy = collider.GetComponent<Enemy>();
-                        if (enemy != null)
+                        var cloud = collider.GetComponent<Cloud>();
+                        if (cloud != null)
                         {
-                            enemy.OnAlphabetImpact(CurrentChar);
+                            cloud.OnAlphabetImpact(CurrentChar);
                             IsActive = false;
                         }
                     }

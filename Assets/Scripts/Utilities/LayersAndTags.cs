@@ -8,8 +8,8 @@ public enum Layers
     IgnoreRaycast = 2,
     Water = 4,
     UI = 5,
-    Enemy = 8,
-    EnemySegment = 9,
+    Cloud = 8,
+    CloudSegment = 9,
     Player = 10,
 }
 
@@ -18,9 +18,9 @@ public enum Layers
 /// </summary>
 public enum LayerMasks
 {
-    Enemy = 1 << Layers.Enemy,
-    EnemySegmeny = 1 << Layers.EnemySegment,
-    LaserBlocker = (1 << Layers.Enemy) | (1 << Layers.EnemySegment),
+    Cloud = 1 << Layers.Cloud,
+    CloudSegment = 1 << Layers.CloudSegment,
+    LaserBlocker = (1 << Layers.Cloud) | (1 << Layers.CloudSegment),
 }
 
 public static class Tags

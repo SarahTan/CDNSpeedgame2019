@@ -139,18 +139,18 @@ public class PlayerController : Singleton<PlayerController>
     {
         // Even though we are only interested in EnemySegment, we must check against Enemy as it has a Rigidbody and hence will treat the
         // children EnemySegment's colliders as its own compound colliders, and be the one sending the collision events instead.
-        if (collision.gameObject.layer == (int)Layers.Enemy) // Hits an enemy segment
+        if (collision.gameObject.layer == (int)Layers.Cloud) // Hits an enemy segment
         {
-            var enemySegment = collision.collider.GetComponentInParent<EnemySegment>();
+            var enemySegment = collision.collider.GetComponentInParent<CloudSegment>();
             if (enemySegment != null && 
-                enemySegment.CurrentState != EnemySegment.EnemySegmentState.Spawning)
+                enemySegment.CurrentState != CloudSegment.CloudSegmentState.Spawning)
             {
                 BadStuffHappens("Movement"); // TODO: Actually make bad stuff happen to everything BUT movement
 
                 if (Time.time > invincibilityEndTime)
                 {
                     enemySegment.DestroySegment();
-                    enemySegment.CurrentState = EnemySegment.EnemySegmentState.Collided; // Override the state
+                    enemySegment.CurrentState = CloudSegment.CloudSegmentState.Collided; // Override the state
 
                     invincibilityEndTime = Time.time + hitInvincibilityDuration;
                     HitEnemyEvent?.Invoke();

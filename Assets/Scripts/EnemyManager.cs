@@ -9,12 +9,12 @@ public class EnemyManager : Singleton<EnemyManager>
     #region Fields
 
     [SerializeField]
-    private Enemy enemyPrefab;
+    private Cloud cloudPrefab;
     [SerializeField]
     private ShootingStar starPrefab;
 
     [SerializeField]
-    private List<string> enemyStrings = new List<string>();
+    private List<string> cloudStrings = new List<string>();
 
     [Header("Stars")]
     public float starSpeed;
@@ -39,7 +39,7 @@ public class EnemyManager : Singleton<EnemyManager>
     [HideInInspector]
     public string DestroyedColorHex;
 
-    private List<Enemy> enemies = new List<Enemy>();
+    private List<Cloud> clouds = new List<Cloud>();
     private List<ShootingStar> stars = new List<ShootingStar>();
     
     #endregion
@@ -55,32 +55,32 @@ public class EnemyManager : Singleton<EnemyManager>
 
     private void Start()
     {
-        if (enemyStrings.Count() == 0)
+        if (cloudStrings.Count() == 0)
         {
-            Debug.LogError("ERROR! No enemy strings have been set on EnemyManager!", this);
+            Debug.LogError("ERROR! No cloud strings have been set on EnemyManager!", this);
             return;
         }
 
-        for(int i = enemyStrings.Count-1; i >= 0; i--)
+        for(int i = cloudStrings.Count-1; i >= 0; i--)
         {
-            if (string.IsNullOrEmpty(enemyStrings[i]))
+            if (string.IsNullOrEmpty(cloudStrings[i]))
             {
-                enemyStrings.RemoveAt(i);
+                cloudStrings.RemoveAt(i);
             }
-            else if(!enemyStrings[i].OnlyContainsAlphabetsAndSpaces())
+            else if(!cloudStrings[i].OnlyContainsAlphabetsAndSpaces())
             {
-                Debug.LogError($"ERROR! Enemy strings can only contain alphabets and spaces! Removing \"{enemyStrings[i]}\"");
-                enemyStrings.RemoveAt(i);
+                Debug.LogError($"ERROR! Cloud strings can only contain alphabets and spaces! Removing \"{cloudStrings[i]}\"");
+                cloudStrings.RemoveAt(i);
             }
             else
             {
-                enemyStrings[i] = enemyStrings[i].ToUpperInvariant();
+                cloudStrings[i] = cloudStrings[i].ToUpperInvariant();
             }
         }
 
-        enemyStrings.Sort((x, y) => x.Length.CompareTo(y.Length));
+        cloudStrings.Sort((x, y) => x.Length.CompareTo(y.Length));
 
-        StartCoroutine(SpawnEnemiesRoutine());
+        StartCoroutine(SpawnCloudsRoutine());
         StartCoroutine(SpawnStarsRoutine());
     }
 
@@ -104,43 +104,43 @@ public class EnemyManager : Singleton<EnemyManager>
         }
     }
 
-    private IEnumerator SpawnEnemiesRoutine()
+    private IEnumerator SpawnCloudsRoutine()
     {
         while (true)
         {
-            var enemy = enemies.FirstOrDefault(e => !e.isActiveAndEnabled);
-            if (enemy == null)
+            var cloud = clouds.FirstOrDefault(e => !e.isActiveAndEnabled);
+            if (cloud == null)
             {
-                enemy = Instantiate(enemyPrefab, transform);
-                enemies.Add(enemy);
+                cloud = Instantiate(cloudPrefab, transform);
+                clouds.Add(cloud);
             }
 
             // Word length increases as the game goes on
-            var minimumIndexForEnemyText = Time.time/20 - 2;
-            var maximumIndexForEnemyText = (enemyStrings.Count - 1)/2 + (Time.time / 20);
-            if (minimumIndexForEnemyText < 0)
+            var minimumIndexForCloudText = Time.time/20 - 2;
+            var maximumIndexForCloudText = (cloudStrings.Count - 1)/2 + (Time.time / 20);
+            if (minimumIndexForCloudText < 0)
             {
-                minimumIndexForEnemyText = 0;
+                minimumIndexForCloudText = 0;
             }
-            if (minimumIndexForEnemyText > (enemyStrings.Count - 1) / 2)
+            if (minimumIndexForCloudText > (cloudStrings.Count - 1) / 2)
             {
-                minimumIndexForEnemyText = (enemyStrings.Count - 1) / 2;
+                minimumIndexForCloudText = (cloudStrings.Count - 1) / 2;
             }
-            if (maximumIndexForEnemyText > enemyStrings.Count - 1)
+            if (maximumIndexForCloudText > cloudStrings.Count - 1)
             {
-                maximumIndexForEnemyText = enemyStrings.Count - 1;
+                maximumIndexForCloudText = cloudStrings.Count - 1;
             }
 
-            enemy.ActivateEnemy(Utils.GetRandomPositionOnScreen(),
-                                enemyStrings[Random.Range((int)minimumIndexForEnemyText, (int)maximumIndexForEnemyText)]);
+            cloud.ActivateCloud(Utils.GetRandomPositionOnScreen(),
+                                cloudStrings[Random.Range((int)minimumIndexForCloudText, (int)maximumIndexForCloudText)]);
 
-            /* Enemies spawn more rapidly:
+            /* Clouds spawn more rapidly:
              * As the game progresses
              * The fewer of them are on screen
              */
 
-            var numberOfActiveEnemies = enemies.Count(e => e.isActiveAndEnabled);
-            var idealNumberOfActiveEnemies = 15 + Time.time / 5;
+            var numberOfActiveClouds = clouds.Count(e => e.isActiveAndEnabled);
+            var idealNumberOfActiveClouds = 15 + Time.time / 5;
             var baseSpawnRate = 100 - Time.time / 10;
             if (baseSpawnRate < 10)
             {
@@ -148,10 +148,10 @@ public class EnemyManager : Singleton<EnemyManager>
                 Debug.Log("This should be impossible without catlike speed and reflexes.");
             }
 
-            if (idealNumberOfActiveEnemies > numberOfActiveEnemies)
+            if (idealNumberOfActiveClouds > numberOfActiveClouds)
             {
-                var minRate = baseSpawnRate / ((idealNumberOfActiveEnemies - numberOfActiveEnemies) * (idealNumberOfActiveEnemies - numberOfActiveEnemies));
-                Debug.Log("Spawning with rate: " + minRate + ". MinIndex: " + minimumIndexForEnemyText + ". MaxIndex: " + maximumIndexForEnemyText);
+                var minRate = baseSpawnRate / ((idealNumberOfActiveClouds - numberOfActiveClouds) * (idealNumberOfActiveClouds - numberOfActiveClouds));
+                Debug.Log("Spawning with rate: " + minRate + ". MinIndex: " + minimumIndexForCloudText + ". MaxIndex: " + maximumIndexForCloudText);
                 yield return (new WaitForSeconds(Random.Range(minRate, minRate + 1)));
             }
             else

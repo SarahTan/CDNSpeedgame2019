@@ -3,18 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Cloud : MonoBehaviour
 {
     #region Statics
 
-    public static event Action<int, int> EnemyDestroyedEvent;
+    public static event Action<int, int> CloudDestroyedEvent;
 
     #endregion
 
     #region Fields
 
     [SerializeField]
-    private EnemySegment enemySegmentPrefab;
+    private CloudSegment cloudSegmentPrefab;
     [SerializeField]
     private new BoxCollider2D collider;
     [SerializeField]
@@ -22,7 +22,7 @@ public class Enemy : MonoBehaviour
 
     private RectTransform rectTransfrom;
 
-    private List<EnemySegment> segments = new List<EnemySegment>();
+    private List<CloudSegment> segments = new List<CloudSegment>();
 
     private string targetString;
     private int currentNumberOfSegments;
@@ -76,7 +76,7 @@ public class Enemy : MonoBehaviour
 
         foreach (var segment in segments)
         {
-            segment.CurrentState = EnemySegment.EnemySegmentState.Inactive;
+            segment.CurrentState = CloudSegment.CloudSegmentState.Inactive;
         }
 
         // Wait a frame so the GUI has updated, and the rect transform will have the latest bounds based on the GUI
@@ -84,17 +84,17 @@ public class Enemy : MonoBehaviour
         collider.size = rectTransfrom.sizeDelta;
         collider.enabled = true;
 
-        // Give the enemy an instantaneous force and let physics handle the rest of its movement
+        // Give the cloud an instantaneous force and let physics handle the rest of its movement
         var direction = Utils.GetRandomUnitVector();
         var speed = UnityEngine.Random.Range(EnemyManager.Instance.MinSpeed, EnemyManager.Instance.MaxSpeed);
         rb.AddForce(direction * speed, ForceMode2D.Impulse);
     }
     
-    public void ActivateEnemy(Vector2 position, string newTarget)
+    public void ActivateCloud(Vector2 position, string newTarget)
     {
         if (string.IsNullOrEmpty(newTarget))
         {
-            Debug.LogError("ENEMY TARGET STRING IS NULL! :(", this);
+            Debug.LogError("CLOUD TARGET STRING IS NULL! :(", this);
             return;
         }
 
@@ -108,12 +108,12 @@ public class Enemy : MonoBehaviour
         {
             if (segments.Count == i)
             {
-                var newSegment = Instantiate(enemySegmentPrefab);
+                var newSegment = Instantiate(cloudSegmentPrefab);
                 newSegment.transform.SetParent(transform, worldPositionStays: false);
                 segments.Add(newSegment);
             }
 
-            segments[i].EnemySegmentStateChangeEvent += OnSegmentStateChanged;
+            segments[i].CloudSegmentStateChangeEvent += OnSegmentStateChanged;
 
             var substring = targetString.Substring(i * 3, Mathf.Min(3, targetString.Length - (i * 3)));
             segments[i].SetTargetString(substring);
@@ -132,12 +132,12 @@ public class Enemy : MonoBehaviour
         segments[currentActiveSegmentIndex].TryMarkChar(charToTry);
     }
 
-    private void OnSegmentStateChanged(EnemySegment segment)
+    private void OnSegmentStateChanged(CloudSegment segment)
     {
         switch (segment.CurrentState)
         {
             // Activate the next segment
-            case EnemySegment.EnemySegmentState.Completed:
+            case CloudSegment.CloudSegmentState.Completed:
 
                 if (currentActiveSegmentIndex + 1 < currentNumberOfSegments)
                 {
@@ -145,31 +145,31 @@ public class Enemy : MonoBehaviour
                 }
                 break;
 
-            case EnemySegment.EnemySegmentState.Destroyed:
+            case CloudSegment.CloudSegmentState.Destroyed:
 
                 destroyedSegmentCount++;
 
                 if (destroyedSegmentCount == currentNumberOfSegments)
                 {
-                    DestroyEnemy();
+                    DestroyCloud();
                 }
                 break;
-            case EnemySegment.EnemySegmentState.Collided:
-                // TODO: Decide if we destroy the enemy or break off earlier pieces
-                DestroyEnemy();
+            case CloudSegment.CloudSegmentState.Collided:
+                // TODO: Decide if we destroy the cloud or break off earlier pieces
+                DestroyCloud();
                 break;
         }
     }
 
-    public void DestroyEnemy()
+    public void DestroyCloud()
     {
         for (int i = 0; i < currentNumberOfSegments; i++)
         {
-            segments[i].EnemySegmentStateChangeEvent -= OnSegmentStateChanged;
+            segments[i].CloudSegmentStateChangeEvent -= OnSegmentStateChanged;
         }
         collider.enabled = false;
         gameObject.SetActive(false);
 
-        EnemyDestroyedEvent?.Invoke(currentNumberOfSegments, targetString.Length);
+        CloudDestroyedEvent?.Invoke(currentNumberOfSegments, targetString.Length);
     }
 }

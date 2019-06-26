@@ -32,7 +32,7 @@ public class GameManager : Singleton<GameManager>
         DontDestroyOnLoad(gameObject);
 
         SceneManager.activeSceneChanged += OnSceneLoaded;
-        Enemy.EnemyDestroyedEvent += OnEnemyDestroyed;
+        Cloud.CloudDestroyedEvent += OnEnemyDestroyed;
     }
 
     private void OnSceneLoaded(Scene oldScene, Scene newScene)
