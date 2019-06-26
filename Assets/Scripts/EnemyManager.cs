@@ -99,8 +99,14 @@ public class EnemyManager : Singleton<EnemyManager>
 
             star.ActivateStar(Utils.GetRandomPositionJustOutsideScreen());
 
-            // TODO: spawn rate
-            yield return new WaitForSeconds(0.1f);
+            // Spawn rate is determined solely by the game time
+            var spawnRate = 0.15f - Time.timeSinceLevelLoad / 1000f;
+            if (spawnRate < 0)
+            {
+                spawnRate = 0;
+            }
+
+            yield return new WaitForSeconds(0.075f + spawnRate);
         }
     }
 
@@ -116,8 +122,8 @@ public class EnemyManager : Singleton<EnemyManager>
             }
 
             // Word length increases as the game goes on
-            var minimumIndexForCloudText = Time.time/20 - 2;
-            var maximumIndexForCloudText = (cloudStrings.Count - 1)/2 + (Time.time / 20);
+            var minimumIndexForCloudText = Time.timeSinceLevelLoad / 20 - 2;
+            var maximumIndexForCloudText = (cloudStrings.Count - 1)/2 + (Time.timeSinceLevelLoad / 20);
             if (minimumIndexForCloudText < 0)
             {
                 minimumIndexForCloudText = 0;
@@ -140,8 +146,8 @@ public class EnemyManager : Singleton<EnemyManager>
              */
 
             var numberOfActiveClouds = clouds.Count(e => e.isActiveAndEnabled);
-            var idealNumberOfActiveClouds = 15 + Time.time / 5;
-            var baseSpawnRate = 100 - Time.time / 10;
+            var idealNumberOfActiveClouds = 20 + Time.timeSinceLevelLoad / 5;
+            var baseSpawnRate = 100 - Time.timeSinceLevelLoad / 10;
             if (baseSpawnRate < 10)
             {
                 baseSpawnRate = 10;

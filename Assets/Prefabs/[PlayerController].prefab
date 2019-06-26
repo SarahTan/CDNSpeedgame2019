@@ -54,7 +54,7 @@ MonoBehaviour:
   laser: {fileID: 4280708891273526408}
   maxMoveDurationPerKeypress: 0.7
   minMovedurationPerKeypress: 0.3
-  speed: 5
+  speed: 3
   rb: {fileID: 6615461269691885516}
 --- !u!212 &4280708890353569395
 SpriteRenderer:

@@ -58,7 +58,7 @@ MonoBehaviour:
   - incididunt
   - labore
   - dolore
-  starSpeed: 7.5
+  starSpeed: 1.5
   SpawnDuration: 1
   MaxSpeed: 1.5
   MinSpeed: 0.5
