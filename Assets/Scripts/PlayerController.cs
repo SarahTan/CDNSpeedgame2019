@@ -182,7 +182,7 @@ public class PlayerController : Singleton<PlayerController>
             case "Targeting":
             case "Typing":
             case "Moving":
-                this.speed = this.speed * 0.98f;
+                //this.speed = this.speed * 0.98f;
                 Debug.Log("Make bad stuff happen to movement.");
                 break;
             default:

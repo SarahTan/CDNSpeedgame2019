@@ -169,8 +169,24 @@ public class Cloud : MonoBehaviour
             segments[i].CloudSegmentStateChangeEvent -= OnSegmentStateChanged;
         }
         collider.enabled = false;
-        gameObject.SetActive(false);
 
         CloudDestroyedEvent?.Invoke(currentNumberOfSegments, targetString.Length);
+        StartCoroutine(RunDestroyAnimation());
+    }
+
+    private IEnumerator RunDestroyAnimation()
+    {
+        // Scale down
+        var startTime = Time.time;
+        while (transform.localScale.x > 0.1f)
+        {
+            yield return null;
+            var elapsedTime = Time.time - startTime;
+
+            // TODO: Use an animation curve for snappier feeling animation
+            transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, elapsedTime / EnemyManager.Instance.SpawnDuration);
+        }
+
+        gameObject.SetActive(false);
     }
 }
