@@ -151,7 +151,7 @@ public class CloudSegment : MonoBehaviour
                 {
                     if (collider != null)
                     {
-                        var segment = collider.GetComponent<CloudSegment>();
+                        var segment = collider.GetComponentInParent<CloudSegment>();
                         if (segment != null && segment == this)
                         {
                             DestroySegment();

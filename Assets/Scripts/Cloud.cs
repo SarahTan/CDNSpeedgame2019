@@ -78,6 +78,7 @@ public class Cloud : MonoBehaviour
         {
             segment.CurrentState = CloudSegment.CloudSegmentState.Inactive;
         }
+        segments[0].ActivateSegment();
 
         // Wait a frame so the GUI has updated, and the rect transform will have the latest bounds based on the GUI
         yield return null;
