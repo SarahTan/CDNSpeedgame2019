@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,9 @@ public class Reticle : MonoBehaviour
 
     // TODO: Prototype for unlocking cursor
     private bool cursorLocked = false;
+
+    // Tuple of Expiration Time and Multiplication Factor, to slow down mouse movement
+    public List<Tuple<float, float>> ReticleSpeedModifiers = new List<Tuple<float, float>>();
 
     private void Update()
     {

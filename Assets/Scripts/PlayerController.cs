@@ -22,6 +22,8 @@ public class PlayerController : Singleton<PlayerController>
 
     [SerializeField]
     private float hitInvincibilityDuration;
+    [SerializeField]
+    private int hitPoints;
 
     [Header("Mouse")]
     [SerializeField]
@@ -48,6 +50,9 @@ public class PlayerController : Singleton<PlayerController>
     private float laserIncrement = 1f;
 
     private float invincibilityEndTime = 0f;
+
+    // Tuple of Expiration Time and Multiplication Factor, to slow down movement
+    private List<Tuple<float, float>> playerSpeedModifiers = new List<Tuple<float, float>>();
 
     private GameObject reticle;
 
@@ -152,8 +157,6 @@ public class PlayerController : Singleton<PlayerController>
             if (enemySegment != null && 
                 enemySegment.CurrentState != CloudSegment.CloudSegmentState.Spawning)
             {
-                BadStuffHappens("Targeting", "Typing"); // TODO: Actually make bad stuff happen to everything BUT movement
-
                 if (Time.time > invincibilityEndTime)
                 {
                     enemySegment.DestroySegment();
@@ -161,6 +164,7 @@ public class PlayerController : Singleton<PlayerController>
 
                     invincibilityEndTime = Time.time + hitInvincibilityDuration;
                     HitEnemyEvent?.Invoke();
+                    GetHit();
                 }
             }
         }
@@ -168,12 +172,20 @@ public class PlayerController : Singleton<PlayerController>
 
     #endregion
 
-    // TODO: Extract into a Bad Stuff Manager?
-    // TODO: Use an enum for bad stuff?
+    public void GetHit()
+    {
+        hitPoints--;
+
+        if (hitPoints <= 0)
+        {
+            // TODO: Lose the game
+        }
+    }
+
     /// <summary>
     /// Makes bad stuff happen
     /// </summary>
-    /// <param name="BadStuffCategories">The categories of which bad stuff happens. Only one thing will happen, currently</param>
+    /// <param name="BadStuffCategories">The categories of which bad stuff happens - "Typing", "Targeting", or "Moving"</param>
     private void BadStuffHappens(params string[] BadStuffCategories)
     {
         var chosenCategory = new System.Random().Next(0, BadStuffCategories.Length);

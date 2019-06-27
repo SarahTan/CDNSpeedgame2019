@@ -26,6 +26,14 @@ public class ShootingStar : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         gameObject.SetActive(false);
+        if (collision.gameObject.layer == (int)Layers.Player)
+        {
+            var player = collision.collider.GetComponentInParent<PlayerController>();
+            if (player != null)
+            {
+                player.GetHit();
+            }
+        }
     }
 
     public void ActivateStar(Vector3 position)
