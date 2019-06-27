@@ -12,8 +12,8 @@ public class Reticle : MonoBehaviour
     [SerializeField]
     private float maxSpeed;
 
-    // TODO: Prototype for unlocking cursor
-    private bool cursorLocked = false;
+    // Prototype for unlocking cursor
+    private bool cursorLocked = true;
 
     // Tuple of Expiration Time and Multiplication Factor, to slow down mouse movement
     public List<Tuple<float, float>> ReticleSpeedModifiers = new List<Tuple<float, float>>();

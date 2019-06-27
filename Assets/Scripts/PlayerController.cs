@@ -174,6 +174,11 @@ public class PlayerController : Singleton<PlayerController>
     public void GetHit()
     {
         hitPoints--;
+        var renderer = GetComponent<SpriteRenderer>();
+
+        // Assumes 10 hit points at start - adjust as necessary
+        renderer.color = new Color(1.0f, 1.0f, 10f, 0.2f + 0.08f * hitPoints); 
+        Debug.Log("Hit points left: " + hitPoints);
 
         if (hitPoints <= 0)
         {
