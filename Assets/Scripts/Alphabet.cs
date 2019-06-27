@@ -18,7 +18,7 @@ public class Alphabet : MonoBehaviour
     private TextMeshPro text;
 
     PlayerController player;
-    int steps = 0;
+    float distanceMoved = 0;
 
     private Collider2D[] hitColliders = new Collider2D[MAX_COLLISIONS];
 
@@ -56,7 +56,7 @@ public class Alphabet : MonoBehaviour
 
         // Update position
         transform.position = player.transform.position;
-        steps = 0;
+        distanceMoved = 0;
 
         // Set active
         IsActive = true;
@@ -76,7 +76,11 @@ public class Alphabet : MonoBehaviour
         {
             if (player.LaserIsActive)
             {
-                transform.position = Vector2.MoveTowards(player.transform.position, player.ReticleCenter, AlphabetManager.Instance.AlphabetSpeed * Time.fixedDeltaTime * ++steps);
+                transform.position = Vector2.MoveTowards(
+                    player.transform.position,
+                    player.ReticleCenter,
+                    AlphabetManager.Instance.ModifiedAlphabetSpeed * Time.fixedDeltaTime + distanceMoved);
+                distanceMoved += AlphabetManager.Instance.ModifiedAlphabetSpeed * Time.fixedDeltaTime;
 
                 if (Vector2.Distance(transform.position, player.ReticleCenter) < Mathf.Epsilon)
                 {

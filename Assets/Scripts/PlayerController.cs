@@ -216,6 +216,7 @@ public class PlayerController : Singleton<PlayerController>
                 Reticle.BadStuffHappens();
                 break;
             case "Typing":
+                AlphabetManager.Instance.BadStuffHappens();
                 Debug.Log("Make bad stuff happen to typing.");
                 break;
             case "Moving":
@@ -226,7 +227,6 @@ public class PlayerController : Singleton<PlayerController>
                     Debug.Log("Player slowdowns: " + playerSpeedModifiers.Count);
                     ChangeColor();
                 }
-                Debug.Log("Make bad stuff happen to movement.");
                 break;
             default:
                 Debug.Log("Bad stuff happened while making bad stuff happen. Or just lose HP.");
