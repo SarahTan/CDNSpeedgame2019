@@ -17,27 +17,38 @@ public class Reticle : MonoBehaviour
 
     // Prototype for unlocking cursor
     private bool cursorLocked = true;
-    private bool hardMode = false;
 
     // Expiration time of modifiers which slow down mouse movement - sorted
     private Queue<float> reticleSpeedModifiers = new Queue<float>();
+    private float lastBadStuffTime = 0;
 
     public void BadStuffHappens()
     {
-        if (!hardMode)
+        if (lastBadStuffTime < Time.time - 0.1f) // For some reason, this fires like, 3 times at once
         {
-            Debug.Log("Make bad stuff happen to targeting.");
             reticleSpeedModifiers.Enqueue(Time.time + slowdownDuration);
+            lastBadStuffTime = Time.time;
+            Debug.Log("Reticle slowdowns: " + reticleSpeedModifiers.Count);
+            ChangeColor();
         }
+    }
+
+    private void ChangeColor()
+    {
+        var renderer = GetComponent<SpriteRenderer>();
+        renderer.color = new Color(1.0f - reticleSpeedModifiers.Count * 0.04f,
+            0f + reticleSpeedModifiers.Count * 0.05f,
+            0f + reticleSpeedModifiers.Count * 0.02f);
     }
 
     private void Update()
     {
         // Remove the first reticle speed modifier if it's expired
         if (reticleSpeedModifiers.Count > 0 
-            && reticleSpeedModifiers.Peek() > Time.time)
+            && reticleSpeedModifiers.Peek() < Time.time)
         {
             reticleSpeedModifiers.Dequeue();
+            ChangeColor();
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -65,8 +76,8 @@ public class Reticle : MonoBehaviour
             var forceDirection = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 
             var totalSlowdown = reticleSpeedModifiers.Count * slowdownFactor;
-            if (hardMode 
-                || reticleSpeedModifiers.Count > 10)
+            bool hardMode = false;
+            if (reticleSpeedModifiers.Count > 20)
             {
                 hardMode = true;
                 totalSlowdown = 0;

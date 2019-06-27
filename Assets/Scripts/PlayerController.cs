@@ -74,6 +74,8 @@ public class PlayerController : Singleton<PlayerController>
     private void Start()
     {
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
         Reticle = Instantiate(reticlePrefab, Utils.MainCam.ScreenToWorldPoint(Input.mousePosition), Quaternion.identity);
         moveStopTime = Time.time;
 
@@ -114,7 +116,7 @@ public class PlayerController : Singleton<PlayerController>
                     newR = 0.5f;
                     laserIncrement = -laserIncrement;
                 }
-                laser.endColor = new Color(newR, newR - 0.5f, newR - 0.5f);
+                laser.endColor = Reticle.GetComponent<SpriteRenderer>().color;
                 laser.startColor = new Color(newR - 0.3f, newR - 0.3f, newR);
 
                 if (hit.collider != null)
@@ -185,7 +187,7 @@ public class PlayerController : Singleton<PlayerController>
         var renderer = GetComponent<SpriteRenderer>();
 
         // Assumes 10 hit points at start - adjust as necessary
-        renderer.color = new Color(1.0f, 1.0f, 10f, 0.2f + 0.08f * hitPoints); 
+        renderer.color = new Color(1.0f, 1.0f, 1.0f, 0.2f + 0.08f * hitPoints); 
         Debug.Log("Hit points left: " + hitPoints);
 
         if (hitPoints <= 0)
@@ -210,7 +212,7 @@ public class PlayerController : Singleton<PlayerController>
         switch (BadStuffCategories[chosenCategory])
         {
             case "Targeting":
-                // TODO: Call Reticle's bad stuff
+                Reticle.BadStuffHappens();
                 break;
             case "Typing":
                 Debug.Log("Make bad stuff happen to typing.");
