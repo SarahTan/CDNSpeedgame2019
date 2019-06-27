@@ -27,8 +27,6 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField]
     private GameObject reticlePrefab;
     [SerializeField]
-    private Texture2D cursorTex;
-    [SerializeField]
     private LineRenderer laser;
 
     [Header("Mover")]
@@ -74,7 +72,6 @@ public class PlayerController : Singleton<PlayerController>
     {
         Cursor.visible = false;
         reticle = Instantiate(reticlePrefab, Utils.MainCam.ScreenToWorldPoint(Input.mousePosition), Quaternion.identity);
-        //UpdateCursorVisuals(false);
         moveStopTime = Time.time;
 
         // Start the laser
@@ -264,16 +261,5 @@ public class PlayerController : Singleton<PlayerController>
         {
             rb.velocity = movementDirection * speed;
         }
-    }
-
-    private void UpdateCursorVisuals(bool reset)
-    {
-        // hotspot is the offset from the top left to the target point of the cursor
-        var hotspot = Vector3.zero;
-        if (!reset)
-        {
-            hotspot = new Vector2(cursorTex.width / 2f, cursorTex.height / 2f);
-        }
-        Cursor.SetCursor(reset ? null : cursorTex, hotspot, CursorMode.Auto);
     }
 }

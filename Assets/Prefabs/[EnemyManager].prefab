@@ -62,9 +62,9 @@ MonoBehaviour:
   SpawnDuration: 1
   MaxSpeed: 1.5
   MinSpeed: 0.5
-  MarkedColor: {r: 0, g: 0, b: 0, a: 1}
-  UnmarkedColor: {r: 1, g: 1, b: 1, a: 1}
-  DestroyedColor: {r: 0, g: 0, b: 0, a: 0.29803923}
+  MarkedColor: {r: 0.9, g: 1, b: 1, a: 1}
+  UnmarkedColor: {r: 0, g: 0, b: 0.2, a: 1}
+  DestroyedColor: {r: 0.8, g: 1, b: 1, a: 0.29803923}
   MarkedColorHex: 
   UnmarkedColorHex: 
   DestroyedColorHex: 
