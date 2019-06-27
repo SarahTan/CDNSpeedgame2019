@@ -15,12 +15,11 @@ public class CloudSegment : MonoBehaviour
 
     #region Enums
 
-    // TODO: Might want to convert this into a proper state machine if stuff gets more complicated
-    public enum CloudSegmentState
+    public enum State
     {
         Disabled = 0,       // Not in play
         Spawning = -1,      // Immune to most forms of interaction with the player
-        Inactive = 1,       // Has targetString but can't start typing
+        Idle = 1,          // Has targetString but can't start typing
         Active = 2,         // Can start typing
         Completed = 3,      // Finished typing, waiting to be destroyed
         Destroyed = 4,      // Mouse has already right clicked it
@@ -65,11 +64,11 @@ public class CloudSegment : MonoBehaviour
         }
     }
 
-    private CloudSegmentState _currentState = CloudSegmentState.Disabled;
-    public CloudSegmentState CurrentState
+    private State _currentState = State.Disabled;
+    public State CurrentState
     {
         get { return _currentState; }
-        set
+        private set
         {
             if(value != _currentState)
             {
@@ -102,7 +101,7 @@ public class CloudSegment : MonoBehaviour
 
     private void OnDisable()
     {
-        CurrentState = CloudSegmentState.Disabled;
+        CurrentState = State.Disabled;
     }
 
     #endregion
@@ -111,22 +110,17 @@ public class CloudSegment : MonoBehaviour
     {
         firstUnmarkedCharIndex = 0;
         targetString = newTarget;
-        CurrentState = CloudSegmentState.Spawning;
+        CurrentState = State.Spawning;
     }
-
-    public void ActivateSegment()
-    {
-        CurrentState = CloudSegmentState.Active;
-    }
-
+    
     public void TryMarkChar(char charToTry)
     {
-        if (CurrentState == CloudSegmentState.Active && FirstUnmarkedChar == charToTry)
+        if (CurrentState == State.Active && FirstUnmarkedChar == charToTry)
         {
             firstUnmarkedCharIndex++;
             if (firstUnmarkedCharIndex == targetString.Length)
             {
-                CurrentState = CloudSegmentState.Completed;
+                CurrentState = State.Completed;
             }
             else if(char.IsWhiteSpace(FirstUnmarkedChar))
             {
@@ -139,12 +133,11 @@ public class CloudSegment : MonoBehaviour
 
     private void CheckForRightClick()
     {
-        if (Input.GetMouseButtonDown(1) && CurrentState == CloudSegmentState.Completed)
+        if (Input.GetMouseButtonDown(1) && CurrentState == State.Completed)
         {
             Array.Clear(hitColliders, 0, hitColliders.Length);
 
-            var mouseWorldPos = Utils.MainCam.ScreenToWorldPoint(Input.mousePosition);
-            var numHits = Physics2D.OverlapPointNonAlloc(mouseWorldPos, hitColliders);
+            var numHits = Physics2D.OverlapPointNonAlloc(PlayerController.Instance.ReticleCenter, hitColliders);
             if (numHits > 0)
             {
                 foreach (var collider in hitColliders)
@@ -154,7 +147,7 @@ public class CloudSegment : MonoBehaviour
                         var segment = collider.GetComponentInParent<CloudSegment>();
                         if (segment != null && segment == this)
                         {
-                            DestroySegment();
+                            SetState(State.Destroyed);
                         }
                     }
                 }
@@ -166,15 +159,18 @@ public class CloudSegment : MonoBehaviour
     {
         switch (CurrentState)
         {
-            case CloudSegmentState.Disabled:
+            case State.Disabled:
                 gameObject.SetActive(false);
                 break;
 
-            case CloudSegmentState.Spawning:
+            case State.Spawning:
                 text.SetText($"<color=#{EnemyManager.Instance.UnmarkedColorHex}>{targetString}");
                 renderer.color = EnemyManager.Instance.MarkedColor;
                 gameObject.SetActive(true);
-                StartCoroutine(SetRendererAndCollider());
+
+                // Due to race conditions, this gameobject may not have finished being set active, so run the coroutine
+                // on the EnemyManager instead since it's guaranteed to be active.
+                EnemyManager.Instance.StartCoroutine(SetRendererAndCollider());
                 IEnumerator SetRendererAndCollider()
                 {
                     // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds
@@ -185,11 +181,11 @@ public class CloudSegment : MonoBehaviour
                 }
                 break;
 
-            case CloudSegmentState.Inactive:
+            case State.Idle:
                 collider.enabled = true;
                 break;
 
-            case CloudSegmentState.Active:
+            case State.Active:
                 // No char has been marked
                 if (firstUnmarkedCharIndex == 0)
                 {
@@ -203,24 +199,22 @@ public class CloudSegment : MonoBehaviour
                 }
                 break;
 
-            case CloudSegmentState.Completed:
+            case State.Completed:
                 text.SetText($"<color=#{EnemyManager.Instance.MarkedColorHex}>{targetString}");
-
                 break;
 
-            case CloudSegmentState.Destroyed:
+            case State.Collided:
+            case State.Destroyed:
+                // The player can now pass through this segment
+                collider.enabled = false;
                 text.SetText($"<color=#{EnemyManager.Instance.DestroyedColorHex}>{targetString}");
                 renderer.color = EnemyManager.Instance.DestroyedColor;
                 break;
-
         }
     }
 
-    public void DestroySegment()
+    public void SetState(State newState)
     {
-        // The player can now pass through this segment
-        collider.enabled = false;
-
-        CurrentState = CloudSegmentState.Destroyed;
+        CurrentState = newState;
     }
 }

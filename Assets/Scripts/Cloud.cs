@@ -100,9 +100,9 @@ public class Cloud : MonoBehaviour
 
         foreach (var segment in segments)
         {
-            segment.CurrentState = CloudSegment.CloudSegmentState.Inactive;
+            segment.SetState(CloudSegment.State.Idle);
         }
-        segments[0].ActivateSegment();
+        segments[0].SetState(CloudSegment.State.Active);
 
         // Wait a frame so the GUI has updated, and the rect transform will have the latest bounds based on the GUI
         yield return null;
@@ -162,15 +162,15 @@ public class Cloud : MonoBehaviour
         switch (segment.CurrentState)
         {
             // Activate the next segment
-            case CloudSegment.CloudSegmentState.Completed:
+            case CloudSegment.State.Completed:
 
                 if (currentActiveSegmentIndex + 1 < currentNumberOfSegments)
                 {
-                    segments[++currentActiveSegmentIndex].ActivateSegment();
+                    segments[++currentActiveSegmentIndex].SetState(CloudSegment.State.Active);
                 }
                 break;
 
-            case CloudSegment.CloudSegmentState.Destroyed:
+            case CloudSegment.State.Destroyed:
 
                 destroyedSegmentCount++;
 
@@ -179,7 +179,7 @@ public class Cloud : MonoBehaviour
                     DestroyCloud();
                 }
                 break;
-            case CloudSegment.CloudSegmentState.Collided:
+            case CloudSegment.State.Collided:
                 // TODO: Decide if we destroy the cloud or break off earlier pieces
                 DestroyCloud();
                 break;
