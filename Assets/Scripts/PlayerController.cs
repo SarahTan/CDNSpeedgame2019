@@ -39,6 +39,10 @@ public class PlayerController : Singleton<PlayerController>
     private float speed;
     [SerializeField]
     private Rigidbody2D rb;
+    [SerializeField]
+    private float slowdownDuration;
+    [SerializeField]
+    private float slowdownFactor;
     
     private bool wasUsingNumpad = false; // Tracks whether the LAST PRESSED MOVEMENT was using the numpad
     private Vector2 movementDirection = Vector2.zero; // Tracks the CURRENT MOVEMENT DIRECTION
@@ -47,6 +51,7 @@ public class PlayerController : Singleton<PlayerController>
     private float laserIncrement = 1f;
 
     private float invincibilityEndTime = 0f;
+    private float lastBadStuffTime = 0;
 
     // Expiration time of modifiers to slow down player movement - sorted
     private Queue<float> playerSpeedModifiers = new Queue<float>();
@@ -184,12 +189,8 @@ public class PlayerController : Singleton<PlayerController>
     public void GetHit()
     {
         hitPoints--;
-        var renderer = GetComponent<SpriteRenderer>();
-
-        // Assumes 10 hit points at start - adjust as necessary
-        renderer.color = new Color(1.0f, 1.0f, 1.0f, 0.2f + 0.08f * hitPoints); 
         Debug.Log("Hit points left: " + hitPoints);
-
+        ChangeColor();
         if (hitPoints <= 0)
         {
             // TODO: Lose the game
@@ -218,6 +219,13 @@ public class PlayerController : Singleton<PlayerController>
                 Debug.Log("Make bad stuff happen to typing.");
                 break;
             case "Moving":
+                if (lastBadStuffTime < Time.time - 0.1f) // For some reason, this fires like, 3 times at once
+                {
+                    playerSpeedModifiers.Enqueue(Time.time + slowdownDuration);
+                    lastBadStuffTime = Time.time;
+                    Debug.Log("Player slowdowns: " + playerSpeedModifiers.Count);
+                    ChangeColor();
+                }
                 Debug.Log("Make bad stuff happen to movement.");
                 break;
             default:
@@ -226,11 +234,30 @@ public class PlayerController : Singleton<PlayerController>
         }
     }
 
+    private void ChangeColor()
+    {
+        var renderer = GetComponent<SpriteRenderer>();
+
+        // Assumes 10 hit points at start - adjust as necessary
+        renderer.color = new Color(
+            1.0f - (playerSpeedModifiers.Count * 0.05f),
+            1.0f,
+            1.0f,
+            0.2f + 0.08f * hitPoints);
+    }
+
     /// <summary>
     /// Movement for player using Arrow Keys and Numpad
     /// </summary>
     private void UpdateMovement()
     {
+        if (playerSpeedModifiers.Count > 0
+            && playerSpeedModifiers.Peek() < Time.time)
+        {
+            playerSpeedModifiers.Dequeue();
+            ChangeColor();
+        }
+
         var numpadMovement = new Vector2(Input.GetAxis(HORIZONTAL_NUMPAD), Input.GetAxis(VERTICAL_NUMPAD));
         var arrowMovment = new Vector2(Input.GetAxis(HORIZONTAL_ARROW), Input.GetAxis(VERTICAL_ARROW));
 
@@ -298,7 +325,16 @@ public class PlayerController : Singleton<PlayerController>
             || numpadMovement != Vector2.zero))
             || Time.time < moveStartTime + minMovedurationPerKeypress)
         {
-            rb.velocity = movementDirection * speed;
+
+            var totalSlowdown = playerSpeedModifiers.Count * slowdownFactor;
+            bool hardMode = false;
+            if (playerSpeedModifiers.Count > 10)
+            {
+                hardMode = true;
+                totalSlowdown = 0;
+            }
+
+            rb.velocity = movementDirection * (speed - totalSlowdown) * (hardMode ? -1 : 1);
         }
     }
 }
