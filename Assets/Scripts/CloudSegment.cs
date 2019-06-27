@@ -34,9 +34,9 @@ public class CloudSegment : MonoBehaviour
     [SerializeField]
     private TextMeshPro text;
     [SerializeField]
-    private SpriteRenderer backgroundRenderer;
+    private new SpriteRenderer renderer;
     [SerializeField]
-    private CircleCollider2D[] colliders;
+    private new BoxCollider2D collider;
 
     private int firstUnmarkedCharIndex = 0;
     private RectTransform rectTransform;
@@ -172,23 +172,21 @@ public class CloudSegment : MonoBehaviour
 
             case CloudSegmentState.Spawning:
                 text.SetText($"<color=#{EnemyManager.Instance.UnmarkedColorHex}>{targetString}");
-                backgroundRenderer.color = EnemyManager.Instance.MarkedColor;
+                renderer.color = EnemyManager.Instance.MarkedColor;
                 gameObject.SetActive(true);
-                StartCoroutine(SetBackgroundRenderer());
-                IEnumerator SetBackgroundRenderer()
+                StartCoroutine(SetRendererAndCollider());
+                IEnumerator SetRendererAndCollider()
                 {
                     // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds
                     yield return null;
 
-                    backgroundRenderer.size = rectTransform.sizeDelta + Vector2.one;
-
-                    // TODO: Fix this
-                    //colliders.size = rectTransform.sizeDelta;
+                    renderer.size = rectTransform.sizeDelta + Vector2.one;
+                    collider.size = rectTransform.sizeDelta;
                 }
                 break;
 
             case CloudSegmentState.Inactive:
-                EnableColliders(true);
+                collider.enabled = true;
                 break;
 
             case CloudSegmentState.Active:
@@ -212,7 +210,7 @@ public class CloudSegment : MonoBehaviour
 
             case CloudSegmentState.Destroyed:
                 text.SetText($"<color=#{EnemyManager.Instance.DestroyedColorHex}>{targetString}");
-                backgroundRenderer.color = EnemyManager.Instance.DestroyedColor;
+                renderer.color = EnemyManager.Instance.DestroyedColor;
                 break;
 
         }
@@ -221,16 +219,8 @@ public class CloudSegment : MonoBehaviour
     public void DestroySegment()
     {
         // The player can now pass through this segment
-        EnableColliders(false);
+        collider.enabled = false;
 
         CurrentState = CloudSegmentState.Destroyed;
-    }
-
-    private void EnableColliders(bool enable)
-    {
-        foreach(var collider in colliders)
-        {
-            collider.enabled = enable;
-        }
     }
 }

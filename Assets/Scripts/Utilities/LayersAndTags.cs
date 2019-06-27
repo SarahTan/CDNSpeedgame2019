@@ -11,6 +11,8 @@ public enum Layers
     Cloud = 8,
     CloudSegment = 9,
     Player = 10,
+    Star = 11,
+    Wall = 12,
 }
 
 /// <summary>
@@ -21,6 +23,7 @@ public enum LayerMasks
     Cloud = 1 << Layers.Cloud,
     CloudSegment = 1 << Layers.CloudSegment,
     LaserBlocker = (1 << Layers.Cloud) | (1 << Layers.CloudSegment),
+    Wall = 1 << Layers.Wall,
 }
 
 public static class Tags

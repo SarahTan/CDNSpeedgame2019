@@ -29,6 +29,9 @@ public class Cloud : MonoBehaviour
     private int currentActiveSegmentIndex;
     private int destroyedSegmentCount;
     private Vector3 originalScale;
+    
+    // Used for calculating bounce angle
+    Vector2 incident, reflected, normal, oldVelocity;
 
     #endregion
 
@@ -55,6 +58,27 @@ public class Cloud : MonoBehaviour
         else if (rb.velocity.sqrMagnitude < EnemyManager.Instance.MinSpeed * EnemyManager.Instance.MinSpeed)
         {
             rb.velocity = rb.velocity.normalized * EnemyManager.Instance.MinSpeed;
+        }
+
+        oldVelocity = rb.velocity;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Do our own bounce calculation, because Cloud has a non uniform shape, Z rotation is frozen, and values are relatively small
+        // That sometimes causes Unity's physics calculation to result in a reflection angle which is parallel to the wall.
+        // Also, use a cached velocity from the previous FixedUpdate since this calculation needs the velocity from before Unity did
+        // its wrong calculation, and this happens at most once per frame, out of sync with the physics step
+        if (collision.gameObject.layer == (int)Layers.Wall)
+        {
+            foreach (var contact in collision.contacts)
+            {
+                incident = oldVelocity;
+                normal = contact.normal;
+                reflected = incident - (2 * Vector2.Dot(incident, normal) * normal);
+
+                rb.velocity = reflected;
+            }
         }
     }
 
