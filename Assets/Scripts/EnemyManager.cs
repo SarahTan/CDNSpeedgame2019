@@ -41,7 +41,10 @@ public class EnemyManager : Singleton<EnemyManager>
 
     private List<Cloud> clouds = new List<Cloud>();
     private List<ShootingStar> stars = new List<ShootingStar>();
-    
+
+    private GameObject cloudsParent;
+    private GameObject starsParent;
+
     #endregion
 
     #region Unity Lifecycle
@@ -77,8 +80,12 @@ public class EnemyManager : Singleton<EnemyManager>
                 cloudStrings[i] = cloudStrings[i].ToUpperInvariant();
             }
         }
-
         cloudStrings.Sort((x, y) => x.Length.CompareTo(y.Length));
+        
+        cloudsParent = new GameObject("Clouds");
+        cloudsParent.transform.SetParent(transform);
+        starsParent = new GameObject("Stars");
+        starsParent.transform.SetParent(transform);
 
         StartCoroutine(SpawnCloudsRoutine());
         StartCoroutine(SpawnStarsRoutine());
@@ -93,7 +100,7 @@ public class EnemyManager : Singleton<EnemyManager>
             var star = stars.FirstOrDefault(s => !s.isActiveAndEnabled);
             if (star == null)
             {
-                star = Instantiate(starPrefab, transform);
+                star = Instantiate(starPrefab, starsParent.transform);
                 stars.Add(star);
             }
 
@@ -117,7 +124,7 @@ public class EnemyManager : Singleton<EnemyManager>
             var cloud = clouds.FirstOrDefault(e => !e.isActiveAndEnabled);
             if (cloud == null)
             {
-                cloud = Instantiate(cloudPrefab, transform);
+                cloud = Instantiate(cloudPrefab, cloudsParent.transform);
                 clouds.Add(cloud);
             }
 

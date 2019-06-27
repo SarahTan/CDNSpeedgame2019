@@ -155,12 +155,11 @@ public class PlayerController : Singleton<PlayerController>
         {
             var enemySegment = collision.collider.GetComponentInParent<CloudSegment>();
             if (enemySegment != null && 
-                enemySegment.CurrentState != CloudSegment.CloudSegmentState.Spawning)
+                enemySegment.CurrentState != CloudSegment.State.Spawning)
             {
                 if (Time.time > invincibilityEndTime)
                 {
-                    enemySegment.DestroySegment();
-                    enemySegment.CurrentState = CloudSegment.CloudSegmentState.Collided; // Override the state
+                    enemySegment.SetState(CloudSegment.State.Collided);
 
                     invincibilityEndTime = Time.time + hitInvincibilityDuration;
                     HitEnemyEvent?.Invoke();
