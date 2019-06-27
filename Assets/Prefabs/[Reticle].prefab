@@ -96,6 +96,8 @@ MonoBehaviour:
   rb: {fileID: 5035542606091052268}
   forceMultiplier: 1250
   maxSpeed: 10
+  slowdownDuration: 10
+  slowdownFactor: 50
 --- !u!50 &5035542606091052268
 Rigidbody2D:
   serializedVersion: 4

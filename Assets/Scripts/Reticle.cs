@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Reticle : MonoBehaviour
@@ -12,14 +10,36 @@ public class Reticle : MonoBehaviour
     [SerializeField]
     private float maxSpeed;
 
+    [SerializeField]
+    private float slowdownDuration;
+    [SerializeField]
+    private float slowdownFactor;
+
     // Prototype for unlocking cursor
     private bool cursorLocked = true;
+    private bool hardMode = false;
 
-    // Tuple of Expiration Time and Multiplication Factor, to slow down mouse movement
-    public List<Tuple<float, float>> ReticleSpeedModifiers = new List<Tuple<float, float>>();
+    // Expiration time of modifiers which slow down mouse movement - sorted
+    private Queue<float> reticleSpeedModifiers = new Queue<float>();
+
+    public void BadStuffHappens()
+    {
+        if (!hardMode)
+        {
+            Debug.Log("Make bad stuff happen to targeting.");
+            reticleSpeedModifiers.Enqueue(Time.time + slowdownDuration);
+        }
+    }
 
     private void Update()
     {
+        // Remove the first reticle speed modifier if it's expired
+        if (reticleSpeedModifiers.Count > 0 
+            && reticleSpeedModifiers.Peek() > Time.time)
+        {
+            reticleSpeedModifiers.Dequeue();
+        }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             cursorLocked = !cursorLocked;
@@ -43,7 +63,16 @@ public class Reticle : MonoBehaviour
             rb.transform.position = Utils.MainCam.ViewportToWorldPoint(pos);
 
             var forceDirection = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-            rb.AddForce(forceDirection * forceMultiplier);
+
+            var totalSlowdown = reticleSpeedModifiers.Count * slowdownFactor;
+            if (hardMode 
+                || reticleSpeedModifiers.Count > 10)
+            {
+                hardMode = true;
+                totalSlowdown = 0;
+            }
+
+            rb.AddForce(forceDirection * (forceMultiplier - totalSlowdown) * (hardMode ? -1 : 1));
         }
         else
         {

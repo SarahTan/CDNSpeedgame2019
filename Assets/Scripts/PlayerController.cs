@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -49,8 +48,8 @@ public class PlayerController : Singleton<PlayerController>
 
     private float invincibilityEndTime = 0f;
 
-    // Tuple of Expiration Time and Multiplication Factor, to slow down movement
-    private List<Tuple<float, float>> playerSpeedModifiers = new List<Tuple<float, float>>();
+    // Expiration time of modifiers to slow down player movement - sorted
+    private Queue<float> playerSpeedModifiers = new Queue<float>();
 
     private GameObject reticle;
 
@@ -187,15 +186,18 @@ public class PlayerController : Singleton<PlayerController>
     /// Makes bad stuff happen
     /// </summary>
     /// <param name="BadStuffCategories">The categories of which bad stuff happens - "Typing", "Targeting", or "Moving"</param>
-    private void BadStuffHappens(params string[] BadStuffCategories)
+    public void BadStuffHappens(params string[] BadStuffCategories)
     {
         var chosenCategory = new System.Random().Next(0, BadStuffCategories.Length);
         switch (BadStuffCategories[chosenCategory])
         {
             case "Targeting":
+                // TODO: Call Reticle's bad stuff
+                break;
             case "Typing":
+                Debug.Log("Make bad stuff happen to typing.");
+                break;
             case "Moving":
-                //this.speed = this.speed * 0.98f;
                 Debug.Log("Make bad stuff happen to movement.");
                 break;
             default:

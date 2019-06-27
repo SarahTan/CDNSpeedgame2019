@@ -129,6 +129,10 @@ public class CloudSegment : MonoBehaviour
 
             UpdateVisuals();
         }
+        else if (CurrentState == State.Active && FirstUnmarkedChar != charToTry)
+        {
+            PlayerController.Instance.BadStuffHappens("Targeting", "Moving");
+        }
     }
 
     private void CheckForRightClick()
