@@ -26,7 +26,7 @@ public class PlayerController : Singleton<PlayerController>
 
     [Header("Mouse")]
     [SerializeField]
-    private GameObject reticlePrefab;
+    private Reticle reticlePrefab;
     [SerializeField]
     private LineRenderer laser;
 
@@ -51,18 +51,17 @@ public class PlayerController : Singleton<PlayerController>
     // Expiration time of modifiers to slow down player movement - sorted
     private Queue<float> playerSpeedModifiers = new Queue<float>();
 
-    private GameObject reticle;
-
     #endregion
 
     #region Properties
+
+    public Reticle Reticle { get; private set; }
 
     public Vector2 ReticleCenter
     {
         get
         {
-            return reticle.transform.position.ToVector2();
-            //return Utils.MainCam.ScreenToWorldPoint(Input.mousePosition);
+            return Reticle.transform.position.ToVector2();
         }
     }
 
@@ -75,7 +74,7 @@ public class PlayerController : Singleton<PlayerController>
     private void Start()
     {
         Cursor.visible = false;
-        reticle = Instantiate(reticlePrefab, Utils.MainCam.ScreenToWorldPoint(Input.mousePosition), Quaternion.identity);
+        Reticle = Instantiate(reticlePrefab, Utils.MainCam.ScreenToWorldPoint(Input.mousePosition), Quaternion.identity);
         moveStopTime = Time.time;
 
         // Start the laser
