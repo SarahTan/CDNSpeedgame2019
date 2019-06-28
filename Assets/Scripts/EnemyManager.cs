@@ -59,36 +59,8 @@ public class EnemyManager : Singleton<EnemyManager>
 
     private void Start()
     {
-        if (Words.WordList.Count() == 0)
-        {
-            Debug.LogError("ERROR! No cloud strings have been set on EnemyManager!", this);
-            return;
-        }
+        Words.Instantiate(); // TODO: This can be brought further front to the start of the game
 
-        for(int i = Words.WordList.Count-1; i >= 0; i--)
-        {
-            if (string.IsNullOrEmpty(Words.WordList[i]))
-            {
-                Words.WordList.RemoveAt(i);
-            }
-            else if(!Words.WordList[i].OnlyContainsAlphabetsAndSpaces())
-            {
-                Debug.LogError($"ERROR! Cloud strings can only contain alphabets and spaces! Removing \"{Words.WordList[i]}\"");
-                Words.WordList.RemoveAt(i);
-            }
-            else
-            {
-                Words.WordList[i] = Words.WordList[i].ToUpperInvariant();
-            }
-        }
-        Words.WordList.Sort((x, y) => x.Length.CompareTo(y.Length));
-
-        if (Words.WordList.Count != Words.WordList.Distinct().Count())
-        {
-            Debug.LogError("DUPLICATE STRING EXISTS.");
-            UnityEditor.EditorApplication.isPlaying = false;
-        }
-        
         cloudsParent = new GameObject("Clouds");
         cloudsParent.transform.SetParent(transform);
         starsParent = new GameObject("Stars");
@@ -120,7 +92,7 @@ public class EnemyManager : Singleton<EnemyManager>
                 spawnRate = 0;
             }
 
-            yield return new WaitForSeconds(0.075f + spawnRate);
+            yield return new WaitForSeconds(0.05f + spawnRate);
         }
     }
 
@@ -136,8 +108,10 @@ public class EnemyManager : Singleton<EnemyManager>
             }
 
             // Word length increases as the game goes on
-            var minimumIndexForCloudText = Time.timeSinceLevelLoad / 20 - 2;
-            var maximumIndexForCloudText = (Words.WordList.Count - 1)/2 + (Time.timeSinceLevelLoad / 20);
+            // At 120 seconds, we should be at maximum difficulty
+            float divisor = 240f / Words.WordList.Count;
+            var minimumIndexForCloudText = Time.timeSinceLevelLoad / divisor - Words.WordList.Count * 0.2f;
+            var maximumIndexForCloudText = (Words.WordList.Count - 1)/2 + (Time.timeSinceLevelLoad / divisor);
             if (minimumIndexForCloudText < 0)
             {
                 minimumIndexForCloudText = 0;

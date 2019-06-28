@@ -22,7 +22,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField]
     private float hitInvincibilityDuration;
     [SerializeField]
-    private int hitPoints;
+    private float hitPoints;
 
     [Header("Mouse")]
     [SerializeField]
@@ -181,7 +181,7 @@ public class PlayerController : Singleton<PlayerController>
 
                     invincibilityEndTime = Time.time + hitInvincibilityDuration;
                     HitEnemyEvent?.Invoke();
-                    GetHit();
+                    GetHit(3);
                 }
             }
         }
@@ -197,9 +197,9 @@ public class PlayerController : Singleton<PlayerController>
 
     #endregion
 
-    public void GetHit()
+    public void GetHit(float damage)
     {
-        hitPoints--;
+        hitPoints -= damage;
         Debug.Log("Hit points left: " + hitPoints);
         if (hitPoints <= 0)
         {

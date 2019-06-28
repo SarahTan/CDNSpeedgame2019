@@ -31,7 +31,9 @@ public class ShootingStar : MonoBehaviour
             var player = collision.collider.GetComponentInParent<PlayerController>();
             if (player != null)
             {
-                player.GetHit();
+                player.GetHit(0.2f); // Get hit for a little bit
+                player.BadStuffHappens("Typing", "Targeting");
+                GameManager.Instance.OnPlayerHitEnemy();
             }
         }
     }

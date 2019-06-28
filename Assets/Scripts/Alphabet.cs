@@ -52,7 +52,7 @@ public class Alphabet : MonoBehaviour
 
         // Start the laser
         laser.startWidth = 0.5f;
-        laser.endWidth = 0.7f;
+        laser.endWidth = 0f; // Taper the laser so it vanishes smoothly
         laser.startColor = new Color(0.5f, 0, 0);
         laser.endColor = new Color(0, 0, 0.5f);
     }

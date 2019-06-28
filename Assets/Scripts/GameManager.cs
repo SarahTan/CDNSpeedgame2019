@@ -86,7 +86,7 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    private void OnPlayerHitEnemy()
+    public void OnPlayerHitEnemy()
     {
         CurrentScore--;
     }

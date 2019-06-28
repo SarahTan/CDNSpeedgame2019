@@ -186,12 +186,12 @@ public class Cloud : MonoBehaviour
                 break;
             case CloudSegment.State.Collided:
                 // TODO: Decide if we destroy the cloud or break off earlier pieces
-                DestroyCloud();
+                DestroyCloud(false);
                 break;
         }
     }
 
-    public void DestroyCloud()
+    public void DestroyCloud(bool giveScore = true)
     {
         for (int i = 0; i < currentNumberOfSegments; i++)
         {
@@ -199,7 +199,11 @@ public class Cloud : MonoBehaviour
         }
         collider.enabled = false;
 
-        CloudDestroyedEvent?.Invoke(currentNumberOfSegments, targetString.Length);
+        if (giveScore)
+        {
+            CloudDestroyedEvent?.Invoke(currentNumberOfSegments, targetString.Length);
+        }
+
         StartCoroutine(RunDestroyAnimation());
     }
 
