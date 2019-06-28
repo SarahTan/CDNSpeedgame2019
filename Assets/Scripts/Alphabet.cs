@@ -49,6 +49,12 @@ public class Alphabet : MonoBehaviour
     {
         player = PlayerController.Instance;
         reticleRadius = player.Reticle.GetComponent<SpriteRenderer>().size.x / 2;
+
+        // Start the laser
+        laser.startWidth = 0.5f;
+        laser.endWidth = 0.7f;
+        laser.startColor = new Color(0.5f, 0, 0);
+        laser.endColor = new Color(0, 0, 0.5f);
     }
 
     public void Activate(char newChar)
@@ -71,6 +77,35 @@ public class Alphabet : MonoBehaviour
         UpdateMovement();
 
         CheckForCloudCollision();
+
+        UpdateLaser();
+    }
+
+    [SerializeField]
+    private LineRenderer laser;
+
+    private float laserIncrement = 1f;
+    private void UpdateLaser()
+    {
+        laser.SetPosition(0, transform.position);
+        laser.SetPosition(1, player.ReticleCenter);
+
+        var newR = laser.endColor.r + Time.deltaTime * laserIncrement;
+
+        //Since we're reversing polarity, we can't afford to have 2 cycles in the wrong polarity
+        if (newR > 0.9)
+        {
+            newR = 0.9f;
+            laserIncrement = -laserIncrement;
+        }
+        else if (newR < 0.5)
+        {
+            newR = 0.5f;
+            laserIncrement = -laserIncrement;
+        }
+        var reticleColor = player.Reticle.GetComponent<SpriteRenderer>().color;
+        laser.endColor = new Color(reticleColor.r, reticleColor.g, reticleColor.b, 0.1f);
+        laser.startColor = new Color(newR - 0.3f, newR - 0.3f, newR, 0.1f);
     }
 
     private void UpdateMovement()
