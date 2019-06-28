@@ -26,8 +26,6 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private GameObject mainMenuUI;
 
-    private bool oldGameIsPaused = false;
-
     #endregion
 
     #region Properties
@@ -60,12 +58,20 @@ public class GameManager : Singleton<GameManager>
 
     private void Update()
     {
-        if(oldGameIsPaused != GameIsPaused)
+#if UNITY_EDITOR
+        if(Input.GetKeyDown(KeyCode.Delete))
         {
-            GamePausedEvent?.Invoke(GameIsPaused);
+            PauseGame(true);
         }
-        oldGameIsPaused = GameIsPaused;
+#else
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            PauseGame(true);
+        }
+#endif
     }
+
+    #region Events
 
     private void OnSceneLoaded(Scene oldScene, Scene newScene)
     {
@@ -96,6 +102,8 @@ public class GameManager : Singleton<GameManager>
         UpdateScore(segmentLength, stringLength);
     }
 
+    #endregion
+
     private void SetUpWalls()
     {
         var extents = Utils.GetScreenExtents() + new Vector2(0.5f, 0.5f);
@@ -124,18 +132,19 @@ public class GameManager : Singleton<GameManager>
         CurrentScore += segmentLength + stringLength;
     }
 
-    #region Buttons
-
-    public void Button_Pause()
+    private void PauseGame(bool pause)
     {
-        Time.timeScale = 0;
-        gamePausedUI.SetActive(true);
+        Time.timeScale = pause ? 0 : 1;
+        gamePausedUI.SetActive(pause);
+
+        GamePausedEvent?.Invoke(pause);
     }
+
+    #region Buttons
 
     public void Button_Resume()
     {
-        Time.timeScale = 1;
-        gamePausedUI.SetActive(false);
+        PauseGame(false);
     }
 
     public void Button_MainMenu()
