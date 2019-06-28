@@ -123,6 +123,10 @@ public class Cloud : MonoBehaviour
             return;
         }
 
+        // Generate a random color
+        // Could implement CMCI to get distinct colors... but that's too much work
+        var color = new Color(UnityEngine.Random.Range(0.7f, 1f), UnityEngine.Random.Range(0.7f, 1f), UnityEngine.Random.Range(0.7f, 1f));
+
         transform.position = position;
         transform.localScale = Vector3.zero;
         collider.enabled = false;
@@ -135,6 +139,7 @@ public class Cloud : MonoBehaviour
             {
                 var newSegment = Instantiate(cloudSegmentPrefab);
                 newSegment.transform.SetParent(transform, worldPositionStays: false);
+                newSegment.SetColor(color);
                 segments.Add(newSegment);
             }
 

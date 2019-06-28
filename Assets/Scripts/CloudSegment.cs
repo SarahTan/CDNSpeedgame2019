@@ -168,8 +168,8 @@ public class CloudSegment : MonoBehaviour
                 break;
 
             case State.Spawning:
-                text.SetText($"<color=#{EnemyManager.Instance.UnmarkedColorHex}>{targetString}");
-                renderer.color = EnemyManager.Instance.MarkedColor;
+                text.SetText($"<color=#{unmarkedColorHex}>{targetString}");
+                renderer.color = markedColor;
                 gameObject.SetActive(true);
 
                 // Due to race conditions, this gameobject may not have finished being set active, so run the coroutine
@@ -193,28 +193,45 @@ public class CloudSegment : MonoBehaviour
                 // No char has been marked
                 if (firstUnmarkedCharIndex == 0)
                 {
-                    text.SetText($"<color=#{EnemyManager.Instance.UnmarkedColorHex}><u>{targetString[0]}</u>{targetString.Substring(1)}");
+                    text.SetText($"<color=#{unmarkedColorHex}><u>{targetString[0]}</u>{targetString.Substring(1)}");
                 }
                 else
                 {
-                    text.SetText($"<color=#{EnemyManager.Instance.MarkedColorHex}>{targetString.Substring(0, firstUnmarkedCharIndex)}" +                      // Marked
-                                 $"<color=#{EnemyManager.Instance.UnmarkedColorHex}><u>{targetString[firstUnmarkedCharIndex]}</u>" +       // First unmarked char is underlined
+                    text.SetText($"<color=#{markedColorHex}>{targetString.Substring(0, firstUnmarkedCharIndex)}" +                      // Marked
+                                 $"<color=#{unmarkedColorHex}><u>{targetString[firstUnmarkedCharIndex]}</u>" +       // First unmarked char is underlined
                                  $"{targetString.Substring(firstUnmarkedCharIndex + 1)}");                           // Remaining unmarked
                 }
                 break;
 
             case State.Completed:
-                text.SetText($"<color=#{EnemyManager.Instance.MarkedColorHex}>{targetString}");
+                text.SetText($"<color=#{markedColorHex}>{targetString}");
                 break;
 
             case State.Collided:
             case State.Destroyed:
                 // The player can now pass through this segment
                 collider.enabled = false;
-                text.SetText($"<color=#{EnemyManager.Instance.DestroyedColorHex}>{targetString}");
-                renderer.color = EnemyManager.Instance.DestroyedColor;
+                text.SetText($"<color=#{destroyedColorHex}>{targetString}");
+                renderer.color = destroyedColor;
                 break;
         }
+    }
+
+    private string unmarkedColorHex;
+    private string destroyedColorHex;
+    private string markedColorHex;
+    private Color markedColor;
+    private Color unmarkedColor;
+    private Color destroyedColor;
+    public void SetColor(Color color)
+    {
+        unmarkedColor = color;
+        //markedColor = new Color(1 - color.r, 1 - color.g, 1 - color.b);
+        markedColor = new Color(color.r - 0.7f, color.g - 0.7f, color.b - 0.7f);
+        destroyedColor = new Color(color.r, color.b, color.g, 0.3f);
+        unmarkedColorHex = ColorUtility.ToHtmlStringRGBA(unmarkedColor);
+        markedColorHex = ColorUtility.ToHtmlStringRGBA(markedColor);
+        destroyedColorHex = ColorUtility.ToHtmlStringRGBA(destroyedColor);
     }
 
     public void SetState(State newState)
