@@ -97,41 +97,49 @@ public class PlayerController : Singleton<PlayerController>
     {
         if (!GameManager.Instance.GameIsPaused)
         {
-            LaserIsActive = Input.GetMouseButton(0);
-            if (LaserIsActive)
+            if (!Alphabet.TRACKINGMISSILEMODE)
             {
-                var playerToReticle = ReticleCenter.ToVector3() - transform.position;
-
-                // Cast a ray from the player to the ReticleCenter to check if there's anything blocking the laser.
-                // If it hits something, the laser ends at the hit point, else the laser ends at the ReticleCenter. 
-                var hit = Physics2D.Raycast(transform.position, playerToReticle, playerToReticle.magnitude, (int)LayerMasks.LaserBlocker);
-                laser.SetPosition(0, transform.position);
-                laser.SetPosition(1, hit.collider ? hit.point : ReticleCenter);
-
-                var newR = laser.endColor.r + Time.deltaTime * laserIncrement;
-
-                // Since we're reversing polarity, we can't afford to have 2 cycles in the wrong polarity
-                if (newR > 0.9)
-                {
-                    newR = 0.9f;
-                    laserIncrement = -laserIncrement;
-                }
-                else if (newR < 0.5)
-                {
-                    newR = 0.5f;
-                    laserIncrement = -laserIncrement;
-                }
-                laser.endColor = Reticle.GetComponent<SpriteRenderer>().color;
-                laser.startColor = new Color(newR - 0.3f, newR - 0.3f, newR);
-
-                if (hit.collider != null)
-                {
-                    // TODO: Set a scattered laser
-                }
+                UpdateLaser();
             }
-
-            laser.enabled = LaserIsActive;
         }
+    }
+
+    private void UpdateLaser()
+    {
+        LaserIsActive = Input.GetMouseButton(0);
+        if (LaserIsActive)
+        {
+            var playerToReticle = ReticleCenter.ToVector3() - transform.position;
+
+            // Cast a ray from the player to the ReticleCenter to check if there's anything blocking the laser.
+            // If it hits something, the laser ends at the hit point, else the laser ends at the ReticleCenter. 
+            var hit = Physics2D.Raycast(transform.position, playerToReticle, playerToReticle.magnitude, (int)LayerMasks.LaserBlocker);
+            laser.SetPosition(0, transform.position);
+            laser.SetPosition(1, hit.collider ? hit.point : ReticleCenter);
+
+            var newR = laser.endColor.r + Time.deltaTime * laserIncrement;
+
+            // Since we're reversing polarity, we can't afford to have 2 cycles in the wrong polarity
+            if (newR > 0.9)
+            {
+                newR = 0.9f;
+                laserIncrement = -laserIncrement;
+            }
+            else if (newR < 0.5)
+            {
+                newR = 0.5f;
+                laserIncrement = -laserIncrement;
+            }
+            laser.endColor = Reticle.GetComponent<SpriteRenderer>().color;
+            laser.startColor = new Color(newR - 0.3f, newR - 0.3f, newR);
+
+            if (hit.collider != null)
+            {
+                // TODO: Set a scattered laser
+            }
+        }
+
+        laser.enabled = LaserIsActive;
     }
 
     private void FixedUpdate()
@@ -143,8 +151,8 @@ public class PlayerController : Singleton<PlayerController>
     private void OnGUI()
     {
         // Typer
-        // TODO: Probably wanna rate limit this?
-        if (LaserIsActive && Event.current.isKey)
+        if ((LaserIsActive || Alphabet.TRACKINGMISSILEMODE)
+            && Event.current.isKey)
         {
             var downChar = Event.current.character;
             if (char.IsLetter(downChar))

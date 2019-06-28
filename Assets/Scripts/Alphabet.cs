@@ -21,7 +21,6 @@ public class Alphabet : MonoBehaviour
     float distanceMoved = 0;
 
     private Collider2D[] hitColliders = new Collider2D[MAX_COLLISIONS];
-
     #endregion
 
     #region Properties
@@ -43,9 +42,13 @@ public class Alphabet : MonoBehaviour
 
     #endregion
 
+    public static bool TRACKINGMISSILEMODE = true;
+    private float reticleRadius = 0;
+
     private void Awake()
     {
         player = PlayerController.Instance;
+        reticleRadius = player.Reticle.GetComponent<SpriteRenderer>().size.x / 2;
     }
 
     public void Activate(char newChar)
@@ -74,6 +77,22 @@ public class Alphabet : MonoBehaviour
     {
         if (IsActive)
         {
+            if (TRACKINGMISSILEMODE)
+            {
+                transform.position = Vector2.MoveTowards(
+                    transform.position,
+                    player.ReticleCenter,
+                    AlphabetManager.Instance.ModifiedAlphabetSpeed * Time.fixedDeltaTime);
+                distanceMoved += AlphabetManager.Instance.ModifiedAlphabetSpeed * Time.fixedDeltaTime;
+
+                if (Vector2.Distance(transform.position, player.ReticleCenter) < reticleRadius)
+                {
+                    // Reached the target without colliding into anything, just deactivate it
+                    IsActive = false;
+                }
+                return;
+            }
+
             if (player.LaserIsActive)
             {
                 transform.position = Vector2.MoveTowards(
