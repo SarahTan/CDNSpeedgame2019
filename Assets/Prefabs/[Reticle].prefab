@@ -93,6 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9de44450a15d8e3488073b04bafe2934, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  renderer: {fileID: 8377204458392036863}
   rb: {fileID: 5035542606091052268}
   forceMultiplier: 1250
   maxSpeed: 10

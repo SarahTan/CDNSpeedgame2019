@@ -4,6 +4,8 @@ using UnityEngine;
 public class Reticle : MonoBehaviour
 {
     [SerializeField]
+    private new SpriteRenderer renderer;
+    [SerializeField]
     private Rigidbody2D rb;
     [SerializeField]
     private float forceMultiplier;
@@ -14,13 +16,66 @@ public class Reticle : MonoBehaviour
     private float slowdownDuration;
     [SerializeField]
     private float slowdownFactor;
-
-    // Prototype for unlocking cursor
-    private bool cursorLocked = true;
-
+    
     // Expiration time of modifiers which slow down mouse movement - sorted
     private Queue<float> reticleSpeedModifiers = new Queue<float>();
     private float lastBadStuffTime = 0;
+
+    #region Unity Lifecycle
+
+    private void Awake()
+    {
+        GameManager.Instance.GamePausedEvent += OnGamePaused;
+    }
+
+    private void FixedUpdate()
+    {
+        UpdateReticlePosition();
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.GamePausedEvent -= OnGamePaused;
+        }
+    }
+
+    #endregion
+
+    private void OnGamePaused(bool isPaused)
+    {
+        Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
+    }
+
+    private void UpdateReticlePosition()
+    {
+        // Remove the first reticle speed modifier if it's expired
+        if (reticleSpeedModifiers.Count > 0
+            && reticleSpeedModifiers.Peek() < Time.time)
+        {
+            reticleSpeedModifiers.Dequeue();
+            ChangeColor();
+        }
+
+        // Clamp it to ensure the position is always within the screen
+        var pos = Utils.MainCam.WorldToViewportPoint(rb.position);
+        pos.x = Mathf.Clamp01(pos.x);
+        pos.y = Mathf.Clamp01(pos.y);
+        rb.position = Utils.MainCam.ViewportToWorldPoint(pos);
+
+        var forceDirection = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+
+        var totalSlowdown = reticleSpeedModifiers.Count * slowdownFactor;
+        bool hardMode = false;
+        if (reticleSpeedModifiers.Count > 20)
+        {
+            hardMode = true;
+            totalSlowdown = 0;
+        }
+
+        rb.AddForce(forceDirection * (forceMultiplier - totalSlowdown) * (hardMode ? -1 : 1));
+    }
 
     public void BadStuffHappens()
     {
@@ -35,60 +90,8 @@ public class Reticle : MonoBehaviour
 
     private void ChangeColor()
     {
-        var renderer = GetComponent<SpriteRenderer>();
         renderer.color = new Color(1.0f - reticleSpeedModifiers.Count * 0.04f,
             0f + reticleSpeedModifiers.Count * 0.05f,
             0f + reticleSpeedModifiers.Count * 0.02f);
-    }
-
-    private void Update()
-    {
-        // Remove the first reticle speed modifier if it's expired
-        if (reticleSpeedModifiers.Count > 0 
-            && reticleSpeedModifiers.Peek() < Time.time)
-        {
-            reticleSpeedModifiers.Dequeue();
-            ChangeColor();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            cursorLocked = !cursorLocked;
-            if (cursorLocked)
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                rb.velocity = Vector2.zero;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.None;
-            }
-        }
-
-        if (cursorLocked)
-        {
-            // Clamp it to ensure the position is always within the screen
-            var pos = Utils.MainCam.WorldToViewportPoint(rb.position);
-            pos.x = Mathf.Clamp01(pos.x);
-            pos.y = Mathf.Clamp01(pos.y);
-            rb.transform.position = Utils.MainCam.ViewportToWorldPoint(pos);
-
-            var forceDirection = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-
-            var totalSlowdown = reticleSpeedModifiers.Count * slowdownFactor;
-            bool hardMode = false;
-            if (reticleSpeedModifiers.Count > 20)
-            {
-                hardMode = true;
-                totalSlowdown = 0;
-            }
-
-            rb.AddForce(forceDirection * (forceMultiplier - totalSlowdown) * (hardMode ? -1 : 1));
-        }
-        else
-        {
-            var targetPos = Utils.MainCam.ScreenToWorldPoint(Input.mousePosition);
-            rb.transform.position = Vector2.Lerp(transform.position, targetPos, Time.deltaTime * maxSpeed);
-        }
     }
 }

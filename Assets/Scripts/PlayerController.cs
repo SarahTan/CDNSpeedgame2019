@@ -82,7 +82,8 @@ public class PlayerController : Singleton<PlayerController>
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        Reticle = Instantiate(reticlePrefab, Utils.MainCam.ScreenToWorldPoint(Input.mousePosition), Quaternion.identity);
+        // Force the position to Vector2 so it drops the non zero z-value
+        Reticle = Instantiate(reticlePrefab, Utils.MainCam.ScreenToWorldPoint(Input.mousePosition).ToVector2(), Quaternion.identity);
         moveStopTime = Time.time;
 
         // Start the laser
