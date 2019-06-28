@@ -61,6 +61,7 @@ public class PlayerController : Singleton<PlayerController>
     #region Properties
 
     public Reticle Reticle { get; private set; }
+    private ParticleSystem glow;
 
     public Vector2 ReticleCenter
     {
@@ -89,6 +90,8 @@ public class PlayerController : Singleton<PlayerController>
         laser.endWidth = 0.7f;
         laser.startColor = new Color(0.5f, 0, 0);
         laser.endColor = new Color(0, 0, 0.5f);
+
+        glow = GetComponent<ParticleSystem>();
 
         GameManager.Instance.GamePausedEvent += OnGamePaused;
     }
@@ -198,11 +201,13 @@ public class PlayerController : Singleton<PlayerController>
     {
         hitPoints--;
         Debug.Log("Hit points left: " + hitPoints);
-        ChangeColor();
         if (hitPoints <= 0)
         {
             // TODO: Lose the game
+            return;
         }
+
+        ChangeColor();
     }
 
     private void OnGamePaused(bool isPaused)
@@ -244,6 +249,9 @@ public class PlayerController : Singleton<PlayerController>
 
     private void ChangeColor()
     {
+        var emission = glow.emission;
+        emission.rateOverTime = new ParticleSystem.MinMaxCurve(hitPoints * 2);
+
         var renderer = GetComponent<SpriteRenderer>();
 
         // Assumes 10 hit points at start - adjust as necessary
@@ -251,7 +259,7 @@ public class PlayerController : Singleton<PlayerController>
             1.0f - (playerSpeedModifiers.Count * 0.05f),
             1.0f,
             1.0f,
-            0.2f + 0.08f * hitPoints);
+            0.6f + 0.04f * hitPoints);
     }
 
     /// <summary>
