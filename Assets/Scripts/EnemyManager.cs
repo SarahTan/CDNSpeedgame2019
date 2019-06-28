@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Utilities;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -12,9 +13,6 @@ public class EnemyManager : Singleton<EnemyManager>
     private Cloud cloudPrefab;
     [SerializeField]
     private ShootingStar starPrefab;
-
-    [SerializeField]
-    private List<string> cloudStrings = new List<string>();
 
     [Header("Stars")]
     public float starSpeed;
@@ -56,31 +54,40 @@ public class EnemyManager : Singleton<EnemyManager>
         DestroyedColorHex = ColorUtility.ToHtmlStringRGBA(DestroyedColor);
     }
 
+    #region Cloud Strings
+    #endregion Cloud Strings
+
     private void Start()
     {
-        if (cloudStrings.Count() == 0)
+        if (Words.WordList.Count() == 0)
         {
             Debug.LogError("ERROR! No cloud strings have been set on EnemyManager!", this);
             return;
         }
 
-        for(int i = cloudStrings.Count-1; i >= 0; i--)
+        for(int i = Words.WordList.Count-1; i >= 0; i--)
         {
-            if (string.IsNullOrEmpty(cloudStrings[i]))
+            if (string.IsNullOrEmpty(Words.WordList[i]))
             {
-                cloudStrings.RemoveAt(i);
+                Words.WordList.RemoveAt(i);
             }
-            else if(!cloudStrings[i].OnlyContainsAlphabetsAndSpaces())
+            else if(!Words.WordList[i].OnlyContainsAlphabetsAndSpaces())
             {
-                Debug.LogError($"ERROR! Cloud strings can only contain alphabets and spaces! Removing \"{cloudStrings[i]}\"");
-                cloudStrings.RemoveAt(i);
+                Debug.LogError($"ERROR! Cloud strings can only contain alphabets and spaces! Removing \"{Words.WordList[i]}\"");
+                Words.WordList.RemoveAt(i);
             }
             else
             {
-                cloudStrings[i] = cloudStrings[i].ToUpperInvariant();
+                Words.WordList[i] = Words.WordList[i].ToUpperInvariant();
             }
         }
-        cloudStrings.Sort((x, y) => x.Length.CompareTo(y.Length));
+        Words.WordList.Sort((x, y) => x.Length.CompareTo(y.Length));
+
+        if (Words.WordList.Count != Words.WordList.Distinct().Count())
+        {
+            Debug.LogError("DUPLICATE STRING EXISTS.");
+            UnityEditor.EditorApplication.isPlaying = false;
+        }
         
         cloudsParent = new GameObject("Clouds");
         cloudsParent.transform.SetParent(transform);
@@ -130,22 +137,22 @@ public class EnemyManager : Singleton<EnemyManager>
 
             // Word length increases as the game goes on
             var minimumIndexForCloudText = Time.timeSinceLevelLoad / 20 - 2;
-            var maximumIndexForCloudText = (cloudStrings.Count - 1)/2 + (Time.timeSinceLevelLoad / 20);
+            var maximumIndexForCloudText = (Words.WordList.Count - 1)/2 + (Time.timeSinceLevelLoad / 20);
             if (minimumIndexForCloudText < 0)
             {
                 minimumIndexForCloudText = 0;
             }
-            if (minimumIndexForCloudText > (cloudStrings.Count - 1) / 2)
+            if (minimumIndexForCloudText > (Words.WordList.Count - 1) / 2)
             {
-                minimumIndexForCloudText = (cloudStrings.Count - 1) / 2;
+                minimumIndexForCloudText = (Words.WordList.Count - 1) / 2;
             }
-            if (maximumIndexForCloudText > cloudStrings.Count - 1)
+            if (maximumIndexForCloudText > Words.WordList.Count - 1)
             {
-                maximumIndexForCloudText = cloudStrings.Count - 1;
+                maximumIndexForCloudText = Words.WordList.Count - 1;
             }
 
             cloud.ActivateCloud(Utils.GetRandomPositionOnScreen(),
-                                cloudStrings[Random.Range((int)minimumIndexForCloudText, (int)maximumIndexForCloudText)]);
+                                Words.WordList[Random.Range((int)minimumIndexForCloudText, (int)maximumIndexForCloudText)]);
 
             /* Clouds spawn more rapidly:
              * As the game progresses
