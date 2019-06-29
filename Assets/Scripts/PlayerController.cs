@@ -157,6 +157,11 @@ public class PlayerController : Singleton<PlayerController>
 
     private void OnGUI()
     {
+        if (hitPoints <= 0)
+        {
+            return;
+        }
+
         // Typer
         if ((LaserIsActive || Alphabet.TRACKINGMISSILEMODE)
             && Event.current.isKey)
@@ -207,6 +212,19 @@ public class PlayerController : Singleton<PlayerController>
         Debug.Log("Hit points left: " + hitPoints);
         if (hitPoints <= 0)
         {
+            // Lock controls
+            speed = 0;
+            playerSpeedModifiers.Clear();
+            Reticle.ForceMultiplier = 0;
+            Reticle.ReticleSpeedModifiers.Clear();
+            var collider = this.GetComponent<CircleCollider2D>();
+            collider.enabled = false;
+
+            foreach (var alphabet in GameManager.FindObjectsOfType<Alphabet>())
+            {
+                alphabet.IsActive = false;
+            }
+
             StartCoroutine(DeathRoutine());
             return;
         }
@@ -216,14 +234,7 @@ public class PlayerController : Singleton<PlayerController>
 
     private IEnumerator DeathRoutine()
     {
-        // Lock controls
-        speed = 0;
-        playerSpeedModifiers.Clear();
-        Reticle.ForceMultiplier = 0;
-        Reticle.ReticleSpeedModifiers.Clear();
-
         // Slowly fade away
-        var collider = this.GetComponent<CircleCollider2D>();
         while (hitPoints > -10)
         {
             hitPoints = hitPoints - 1;
