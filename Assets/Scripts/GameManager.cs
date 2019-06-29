@@ -29,6 +29,10 @@ public class GameManager : Singleton<GameManager>
 
     [SerializeField]
     private AudioSource[] audioSources;
+
+    [SerializeField]
+    public AudioSource bgMusic;
+
     #endregion
 
     #region Properties
@@ -159,6 +163,14 @@ public class GameManager : Singleton<GameManager>
         gamePausedUI.SetActive(pause);
 
         GamePausedEvent?.Invoke(pause);
+        if (pause)
+        {
+            bgMusic.volume = 0.2f;
+        }
+        else
+        {
+            bgMusic.volume = 0.6f;
+        }
     }
 
     #region Buttons
@@ -190,6 +202,7 @@ public class GameManager : Singleton<GameManager>
     public void DeathSound()
     {
         audioSources[8].Play();
+        bgMusic.Stop();
     }
 
     public void BadMoveSound() // When you move badly
