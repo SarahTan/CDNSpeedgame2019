@@ -27,7 +27,8 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private GameObject mainMenuUI;
 
-    AudioSource[] audioSources;
+    [SerializeField]
+    private AudioSource[] audioSources;
     #endregion
 
     #region Properties
@@ -74,8 +75,6 @@ public class GameManager : Singleton<GameManager>
 
         SceneManager.activeSceneChanged += OnSceneLoaded;
         Cloud.CloudDestroyedEvent += OnEnemyDestroyed;
-
-        audioSources = GetComponents<AudioSource>();
     }
 
     private void Update()
