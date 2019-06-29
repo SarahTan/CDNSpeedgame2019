@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -127,10 +125,12 @@ public class CloudSegment : MonoBehaviour
                 firstUnmarkedCharIndex++;
             }
 
+            GameManager.Instance.LetterHitCorrectSound();
             UpdateVisuals();
         }
         else if (CurrentState == State.Active && FirstUnmarkedChar != charToTry)
         {
+            GameManager.Instance.LetterHitWrongSound();
             PlayerController.Instance.BadStuffHappens("Targeting", "Moving");
         }
     }
@@ -151,6 +151,7 @@ public class CloudSegment : MonoBehaviour
                         var segment = collider.GetComponentInParent<CloudSegment>();
                         if (segment != null && segment == this)
                         {
+                            GameManager.Instance.DestroySegmentSound();
                             SetState(State.Destroyed);
                         }
                     }

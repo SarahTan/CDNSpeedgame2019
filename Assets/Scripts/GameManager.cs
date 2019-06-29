@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -154,6 +152,7 @@ public class GameManager : Singleton<GameManager>
 
     private void PauseGame(bool pause)
     {
+        ClickButtonSound();
         Time.timeScale = pause ? 0 : 1;
         gamePausedUI.SetActive(pause);
 
@@ -164,18 +163,81 @@ public class GameManager : Singleton<GameManager>
 
     public void Button_Resume()
     {
+        ClickButtonSound();
         PauseGame(false);
     }
 
     public void Button_MainMenu()
     {
+        ClickButtonSound();
         // TODO
     }
 
     public void Button_Quit()
     {
+        ClickButtonSound();
         Application.Quit();
     }
 
     #endregion
+
+    #region SoundFx
+    // Finding code where sound is played is confusing
+    // So here's where all sound is played
+    
+    public void DeathSound()
+    {
+
+    }
+
+    public void BadMoveSound() // When you move badly
+    {
+
+    }
+
+    public void HitCloudSound() // When you hit a cloud with your body
+    {
+
+    }
+
+    public void FireLetterSound() // When you fire a letter
+    {
+
+    }
+
+    public void LetterDisappearSound() // When a letter disappears into the reticle
+    {
+
+    }
+
+    public void LetterHitCorrectSound() // Letter hits the right cloud
+    {
+
+    }
+
+    public void LetterHitWrongSound() // Letter hits the wrong cloud
+    {
+
+    }
+
+    public void DestroySegmentSound() // Destroy a cloud segment
+    {
+
+    }
+
+    public void DestroyCloudSound() // Destroy a whole cloud
+    {
+
+    }
+
+    public void HitStarSound() // Run into a star
+    {
+
+    }
+
+    public void ClickButtonSound() // Click a button
+    {
+
+    }
+    #endregion SoundFx
 }

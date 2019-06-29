@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ShootingStar : MonoBehaviour
 {
@@ -31,6 +29,7 @@ public class ShootingStar : MonoBehaviour
             var player = collision.collider.GetComponentInParent<PlayerController>();
             if (player != null)
             {
+                GameManager.Instance.HitStarSound();
                 player.GetHit(0.2f); // Get hit for a little bit
                 player.BadStuffHappens("Typing", "Targeting");
                 GameManager.Instance.OnPlayerHitEnemy();

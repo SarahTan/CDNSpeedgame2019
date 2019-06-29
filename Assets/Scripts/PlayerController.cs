@@ -169,6 +169,7 @@ public class PlayerController : Singleton<PlayerController>
             var downChar = Event.current.character;
             if (char.IsLetter(downChar))
             {
+                GameManager.Instance.FireLetterSound();
                 AlphabetManager.Instance.ActivateAlphabet(char.ToUpperInvariant(downChar));
             }
         }
@@ -190,6 +191,7 @@ public class PlayerController : Singleton<PlayerController>
 
                     invincibilityEndTime = Time.time + hitInvincibilityDuration;
                     HitEnemyEvent?.Invoke();
+                    GameManager.Instance.HitCloudSound();
                     GetHit(3);
                 }
             }
@@ -225,6 +227,7 @@ public class PlayerController : Singleton<PlayerController>
                 alphabet.IsActive = false;
             }
 
+            GameManager.Instance.DeathSound();
             StartCoroutine(DeathRoutine());
             return;
         }
@@ -326,6 +329,7 @@ public class PlayerController : Singleton<PlayerController>
         {
             // Trivial case - can't have both inputs happen at the same time
             // Give a small grace period so players can mash the keyboard
+            GameManager.Instance.BadMoveSound();
             BadStuffHappens("Targeting", "Typing");
             return;
         }
@@ -367,6 +371,7 @@ public class PlayerController : Singleton<PlayerController>
             || arrowMovment != Vector2.zero)
         {
             movementDirection = Vector2.zero;
+            GameManager.Instance.BadMoveSound();
             BadStuffHappens("Targeting", "Typing");
             return;
         }

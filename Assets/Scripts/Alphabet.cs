@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -123,6 +121,7 @@ public class Alphabet : MonoBehaviour
                 if (Vector2.Distance(transform.position, player.ReticleCenter) < reticleRadius)
                 {
                     // Reached the target without colliding into anything, just deactivate it
+                    GameManager.Instance.LetterDisappearSound();
                     IsActive = false;
                 }
                 return;
