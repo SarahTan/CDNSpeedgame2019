@@ -275,22 +275,21 @@ public class PlayerController : Singleton<PlayerController>
             ChangeColor();
         }
 
-        var numpadMovement = new Vector2(Input.GetAxis(HORIZONTAL_NUMPAD), Input.GetAxis(VERTICAL_NUMPAD));
-        var arrowMovment = new Vector2(Input.GetAxis(HORIZONTAL_ARROW), Input.GetAxis(VERTICAL_ARROW));
-
-        numpadMovement.Normalize();
-        arrowMovment.Normalize();
-
+        // Use GetAxisRaw because we don't want smoothing -- values should jump from 0 to 1 instead of lerping
+        var numpadMovement = new Vector2(Input.GetAxisRaw(HORIZONTAL_NUMPAD), Input.GetAxisRaw(VERTICAL_NUMPAD));
+        var arrowMovment = new Vector2(Input.GetAxisRaw(HORIZONTAL_ARROW), Input.GetAxisRaw(VERTICAL_ARROW));
+                
         // Stupidly enumerate through all cases first - we can get smart later
         if (numpadMovement != Vector2.zero
-            && arrowMovment != Vector2.zero)
+            && arrowMovment != Vector2.zero
+            && Time.time > moveStopTime)
         {
             // Trivial case - can't have both inputs happen at the same time
+            // Give a small grace period so players can mash the keyboard
             BadStuffHappens("Targeting", "Typing");
             return;
         }
         
-        // TODO: Some kind of feedback so the player knows to use arrows or numpad
         // Case 1: Continue holding button that was held
         if (movementDirection != Vector2.zero
             && numpadMovement != Vector2.zero
@@ -333,11 +332,7 @@ public class PlayerController : Singleton<PlayerController>
         }
 
         // Resolve movement
-        if(numpadMovement == Vector2.zero && arrowMovment == Vector2.zero)
-        {
-            rb.velocity = Vector2.zero;
-        }
-        else if ((moveStopTime > Time.time
+        if ((moveStopTime > Time.time
             && (arrowMovment != Vector2.zero
             || numpadMovement != Vector2.zero))
             || Time.time < moveStartTime + minMovedurationPerKeypress)
@@ -351,7 +346,11 @@ public class PlayerController : Singleton<PlayerController>
                 totalSlowdown = 0;
             }
 
-            rb.velocity = movementDirection * (speed - totalSlowdown) * (hardMode ? -1 : 1);
+            rb.velocity = movementDirection.normalized * (speed - totalSlowdown) * (hardMode ? -1 : 1);// * Time.fixedDeltaTime;
+        }
+        else
+        {
+            rb.velocity = Vector2.zero;
         }
     }
 }
