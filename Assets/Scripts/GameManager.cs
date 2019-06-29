@@ -18,6 +18,9 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private TextMeshProUGUI scoreText;
 
+    [SerializeField]
+    private int maxTime;
+
     [Header("Game Running")]
     [SerializeField]
     private GameObject gamePausedUI;
@@ -31,6 +34,8 @@ public class GameManager : Singleton<GameManager>
     #region Properties
 
     private int _currentScore = 0;
+    private int scoreIncrement = 1;
+    private int lastScoreUpdate = 1;
     public int CurrentScore
     {
         get { return _currentScore; }
@@ -46,6 +51,22 @@ public class GameManager : Singleton<GameManager>
     public bool GameIsPaused { get { return Time.timeScale == 0; } }
 
     public event Action<bool> GamePausedEvent = null;
+
+    private void FixedUpdate()
+    {
+        if (Time.timeSinceLevelLoad > lastScoreUpdate)
+        {
+            CurrentScore = CurrentScore + scoreIncrement;
+            lastScoreUpdate = lastScoreUpdate + 4;
+            scoreIncrement++;
+        }
+
+        if (Time.timeSinceLevelLoad > maxTime)
+        {
+            // TODO: WIN!!
+            return;
+        }
+    }
 
     private void Awake()
     {
@@ -127,9 +148,8 @@ public class GameManager : Singleton<GameManager>
 
     private void UpdateScore(int segmentLength, int stringLength)
     {
-        // TODO: Some smarter scoring system
-        // This totally doesn't work right now. You can cheese it by just colliding into stuff and getting points
-        CurrentScore += segmentLength + stringLength;
+        // Destroying things gets more score later in the game
+        CurrentScore += segmentLength + stringLength + scoreIncrement;
     }
 
     private void PauseGame(bool pause)

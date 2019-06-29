@@ -994,6 +994,7 @@ MonoBehaviour:
     type: 3}
   gameRunningUI: {fileID: 1737600675}
   scoreText: {fileID: 699299703}
+  maxTime: 360
   gamePausedUI: {fileID: 2023858461082308795}
   mainMenuUI: {fileID: 258446075957112395}
 --- !u!1 &4452803368240484568
