@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-public class EnemyManager : Singleton<EnemyManager>
-{
+public class EnemyManager : MonoBehaviour
+{ 
     #region Fields
 
     [SerializeField]
@@ -49,13 +49,12 @@ public class EnemyManager : Singleton<EnemyManager>
 
     private void Awake()
     {
+        GameManager.EnemyManager = this;
+
         MarkedColorHex = ColorUtility.ToHtmlStringRGBA(MarkedColor);
         UnmarkedColorHex = ColorUtility.ToHtmlStringRGBA(UnmarkedColor);
         DestroyedColorHex = ColorUtility.ToHtmlStringRGBA(DestroyedColor);
     }
-
-    #region Cloud Strings
-    #endregion Cloud Strings
 
     private void Start()
     {
@@ -68,6 +67,11 @@ public class EnemyManager : Singleton<EnemyManager>
 
         StartCoroutine(SpawnCloudsRoutine());
         StartCoroutine(SpawnStarsRoutine());
+    }
+    
+    private void OnDestroy()
+    {
+        GameManager.EnemyManager = null;
     }
 
     #endregion

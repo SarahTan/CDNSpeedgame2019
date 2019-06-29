@@ -44,6 +44,6 @@ public class ShootingStar : MonoBehaviour
         gameObject.SetActive(true);
 
         var direction = Utils.GetRandomPositionOnScreen() - position;
-        rb.velocity = direction.normalized * EnemyManager.Instance.starSpeed;
+        rb.velocity = direction.normalized * GameManager.EnemyManager.starSpeed;
     }
 }

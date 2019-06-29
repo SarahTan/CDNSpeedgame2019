@@ -40,19 +40,21 @@ public class Alphabet : MonoBehaviour
 
     #endregion
 
-    public static bool TRACKINGMISSILEMODE = true;
     private float reticleRadius = 0;
 
     private void Awake()
     {
-        player = PlayerController.Instance;
-        reticleRadius = player.Reticle.GetComponent<SpriteRenderer>().size.x / 2;
-
         // Start the laser
         laser.startWidth = 0.5f;
         laser.endWidth = 0f; // Taper the laser so it vanishes smoothly
         laser.startColor = new Color(0.5f, 0, 0);
         laser.endColor = new Color(0, 0, 0.5f);
+    }
+
+    private void Start()
+    {
+        player = GameManager.Player;
+        reticleRadius = player.Reticle.GetComponent<SpriteRenderer>().size.x / 2;
     }
 
     public void Activate(char newChar)
@@ -110,39 +112,16 @@ public class Alphabet : MonoBehaviour
     {
         if (IsActive)
         {
-            if (TRACKINGMISSILEMODE)
-            {
-                transform.position = Vector2.MoveTowards(
-                    transform.position,
-                    player.ReticleCenter,
-                    AlphabetManager.Instance.ModifiedAlphabetSpeed * Time.fixedDeltaTime);
-                distanceMoved += AlphabetManager.Instance.ModifiedAlphabetSpeed * Time.fixedDeltaTime;
+            transform.position = Vector2.MoveTowards(
+                transform.position,
+                player.ReticleCenter,
+                GameManager.AlphabetManager.ModifiedAlphabetSpeed * Time.fixedDeltaTime);
+            distanceMoved += GameManager.AlphabetManager.ModifiedAlphabetSpeed * Time.fixedDeltaTime;
 
-                if (Vector2.Distance(transform.position, player.ReticleCenter) < reticleRadius)
-                {
-                    // Reached the target without colliding into anything, just deactivate it
-                    GameManager.Instance.LetterDisappearSound();
-                    IsActive = false;
-                }
-                return;
-            }
-
-            if (player.LaserIsActive)
+            if (Vector2.Distance(transform.position, player.ReticleCenter) < reticleRadius)
             {
-                transform.position = Vector2.MoveTowards(
-                    player.transform.position,
-                    player.ReticleCenter,
-                    AlphabetManager.Instance.ModifiedAlphabetSpeed * Time.fixedDeltaTime + distanceMoved);
-                distanceMoved += AlphabetManager.Instance.ModifiedAlphabetSpeed * Time.fixedDeltaTime;
-
-                if (Vector2.Distance(transform.position, player.ReticleCenter) < Mathf.Epsilon)
-                {
-                    // Reached the target without colliding into anything, just deactivate it
-                    IsActive = false;
-                }
-            }
-            else
-            {
+                // Reached the target without colliding into anything, just deactivate it
+                GameManager.Instance.LetterDisappearSound();
                 IsActive = false;
             }
         }

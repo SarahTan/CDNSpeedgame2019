@@ -131,7 +131,7 @@ public class CloudSegment : MonoBehaviour
         else if (CurrentState == State.Active && FirstUnmarkedChar != charToTry)
         {
             GameManager.Instance.LetterHitWrongSound();
-            PlayerController.Instance.BadStuffHappens("Targeting", "Moving");
+            GameManager.Player.BadStuffHappens("Targeting", "Moving");
         }
     }
 
@@ -141,7 +141,7 @@ public class CloudSegment : MonoBehaviour
         {
             Array.Clear(hitColliders, 0, hitColliders.Length);
 
-            var numHits = Physics2D.OverlapPointNonAlloc(PlayerController.Instance.ReticleCenter, hitColliders);
+            var numHits = Physics2D.OverlapPointNonAlloc(GameManager.Player.ReticleCenter, hitColliders);
             if (numHits > 0)
             {
                 foreach (var collider in hitColliders)
@@ -175,7 +175,7 @@ public class CloudSegment : MonoBehaviour
 
                 // Due to race conditions, this gameobject may not have finished being set active, so run the coroutine
                 // on the EnemyManager instead since it's guaranteed to be active.
-                EnemyManager.Instance.StartCoroutine(SetRendererAndCollider());
+                GameManager.EnemyManager.StartCoroutine(SetRendererAndCollider());
                 IEnumerator SetRendererAndCollider()
                 {
                     // Need to wait for the GUI to render first, so that the rect transform will have the updated bounds

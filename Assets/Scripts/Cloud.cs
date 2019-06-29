@@ -51,13 +51,13 @@ public class Cloud : MonoBehaviour
     private void FixedUpdate()
     {
         // Clamp the speed
-        if (rb.velocity.sqrMagnitude > EnemyManager.Instance.MaxSpeed * EnemyManager.Instance.MaxSpeed)
+        if (rb.velocity.sqrMagnitude > GameManager.EnemyManager.MaxSpeed * GameManager.EnemyManager.MaxSpeed)
         {
-            rb.velocity = rb.velocity.normalized * EnemyManager.Instance.MaxSpeed;
+            rb.velocity = rb.velocity.normalized * GameManager.EnemyManager.MaxSpeed;
         }
-        else if (rb.velocity.sqrMagnitude < EnemyManager.Instance.MinSpeed * EnemyManager.Instance.MinSpeed)
+        else if (rb.velocity.sqrMagnitude < GameManager.EnemyManager.MinSpeed * GameManager.EnemyManager.MinSpeed)
         {
-            rb.velocity = rb.velocity.normalized * EnemyManager.Instance.MinSpeed;
+            rb.velocity = rb.velocity.normalized * GameManager.EnemyManager.MinSpeed;
         }
 
         oldVelocity = rb.velocity;
@@ -94,7 +94,7 @@ public class Cloud : MonoBehaviour
             var elapsedTime = Time.time - startTime;
 
             // TODO: Use an animation curve for snappier feeling animation
-            transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, elapsedTime / EnemyManager.Instance.SpawnDuration);
+            transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, elapsedTime / GameManager.EnemyManager.SpawnDuration);
         }
         transform.localScale = originalScale;
 
@@ -111,7 +111,7 @@ public class Cloud : MonoBehaviour
 
         // Give the cloud an instantaneous force and let physics handle the rest of its movement
         var direction = Utils.GetRandomUnitVector();
-        var speed = UnityEngine.Random.Range(EnemyManager.Instance.MinSpeed, EnemyManager.Instance.MaxSpeed);
+        var speed = UnityEngine.Random.Range(GameManager.EnemyManager.MinSpeed, GameManager.EnemyManager.MaxSpeed);
         rb.AddForce(direction * speed, ForceMode2D.Impulse);
     }
     
@@ -218,7 +218,7 @@ public class Cloud : MonoBehaviour
             var elapsedTime = Time.time - startTime;
 
             // TODO: Use an animation curve for snappier feeling animation
-            transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, elapsedTime / EnemyManager.Instance.SpawnDuration);
+            transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, elapsedTime / GameManager.EnemyManager.SpawnDuration);
         }
 
         gameObject.SetActive(false);

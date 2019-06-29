@@ -4,7 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 
-public class AlphabetManager : Singleton<AlphabetManager>
+public class AlphabetManager : MonoBehaviour
 {
     #region Fields
 
@@ -30,6 +30,30 @@ public class AlphabetManager : Singleton<AlphabetManager>
 
     public float ModifiedAlphabetSpeed => AlphabetSpeed - alphabetSpeedModifiers.Count * slowdownSpeed;
 
+    #region Unity Lifecycle
+
+    private void Awake()
+    {
+        GameManager.AlphabetManager = this;
+    }
+
+    private void Update()
+    {
+        if (alphabetSpeedModifiers.Count > 0
+            && alphabetSpeedModifiers.Peek() < Time.time)
+        {
+            alphabetSpeedModifiers.Dequeue();
+            ChangeColor();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.AlphabetManager = null;
+    }
+
+    #endregion
+
     public void BadStuffHappens()
     {
         if (lastBadStuffTime < Time.time - 0.1f
@@ -50,16 +74,6 @@ public class AlphabetManager : Singleton<AlphabetManager>
             text.color = new Color(1.0f - alphabetSpeedModifiers.Count * 0.07f,
                 1.0f - alphabetSpeedModifiers.Count * 0.07f,
                 1.0f - alphabetSpeedModifiers.Count * 0.07f);
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        if (alphabetSpeedModifiers.Count > 0
-            && alphabetSpeedModifiers.Peek() < Time.time)
-        {
-            alphabetSpeedModifiers.Dequeue();
-            ChangeColor();
         }
     }
 

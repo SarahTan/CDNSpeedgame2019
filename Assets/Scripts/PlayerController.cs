@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : Singleton<PlayerController>
+public class PlayerController : MonoBehaviour
 {
     #region Constants and Statics
 
@@ -14,7 +14,7 @@ public class PlayerController : Singleton<PlayerController>
     private const string HORIZONTAL_NUMPAD = "HorizontalNumpad";
     private const string VERTICAL_NUMPAD = "VerticalNumpad";
 
-    public event Action HitEnemyEvent;
+    public static event Action HitEnemyEvent;
 
     #endregion
 
@@ -78,7 +78,12 @@ public class PlayerController : Singleton<PlayerController>
     #endregion
 
     #region Unity Lifecycle
-    
+
+    private void Awake()
+    {
+        GameManager.Player = this;
+    }
+
     private void Start()
     {
         Cursor.visible = false;
@@ -96,58 +101,9 @@ public class PlayerController : Singleton<PlayerController>
 
         glow = GetComponent<ParticleSystem>();
 
-        GameManager.Instance.GamePausedEvent += OnGamePaused;
+        GameManager.GamePausedEvent += OnGamePaused;
     }
     
-    private void Update()
-    {
-        if (!GameManager.Instance.GameIsPaused)
-        {
-            if (!Alphabet.TRACKINGMISSILEMODE)
-            {
-                UpdateLaser();
-            }
-        }
-    }
-
-    private void UpdateLaser()
-    {
-        LaserIsActive = Input.GetMouseButton(0);
-        if (LaserIsActive)
-        {
-            var playerToReticle = ReticleCenter.ToVector3() - transform.position;
-
-            // Cast a ray from the player to the ReticleCenter to check if there's anything blocking the laser.
-            // If it hits something, the laser ends at the hit point, else the laser ends at the ReticleCenter. 
-            var hit = Physics2D.Raycast(transform.position, playerToReticle, playerToReticle.magnitude, (int)LayerMasks.LaserBlocker);
-            laser.SetPosition(0, transform.position);
-            laser.SetPosition(1, hit.collider ? hit.point : ReticleCenter);
-
-            var newR = laser.endColor.r + Time.deltaTime * laserIncrement;
-
-            // Since we're reversing polarity, we can't afford to have 2 cycles in the wrong polarity
-            if (newR > 0.9)
-            {
-                newR = 0.9f;
-                laserIncrement = -laserIncrement;
-            }
-            else if (newR < 0.5)
-            {
-                newR = 0.5f;
-                laserIncrement = -laserIncrement;
-            }
-            laser.endColor = Reticle.GetComponent<SpriteRenderer>().color;
-            laser.startColor = new Color(newR - 0.3f, newR - 0.3f, newR);
-
-            if (hit.collider != null)
-            {
-                // TODO: Set a scattered laser
-            }
-        }
-
-        laser.enabled = LaserIsActive;
-    }
-
     private void FixedUpdate()
     {
         // Mover
@@ -157,14 +113,13 @@ public class PlayerController : Singleton<PlayerController>
     private void OnGUI()
     {
         // Typer
-        if ((LaserIsActive || Alphabet.TRACKINGMISSILEMODE)
-            && Event.current.isKey)
+        if (Event.current.isKey)
         {
             var downChar = Event.current.character;
             if (char.IsLetter(downChar))
             {
                 GameManager.Instance.FireLetterSound();
-                AlphabetManager.Instance.ActivateAlphabet(char.ToUpperInvariant(downChar));
+                GameManager.AlphabetManager.ActivateAlphabet(char.ToUpperInvariant(downChar));
             }
         }
     }
@@ -194,10 +149,8 @@ public class PlayerController : Singleton<PlayerController>
 
     private void OnDestroy()
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.GamePausedEvent -= OnGamePaused;
-        }
+        GameManager.Player = null;
+        GameManager.GamePausedEvent -= OnGamePaused;
     }
 
     #endregion
@@ -268,7 +221,7 @@ public class PlayerController : Singleton<PlayerController>
                 Reticle.BadStuffHappens();
                 break;
             case "Typing":
-                AlphabetManager.Instance.BadStuffHappens();
+                GameManager.AlphabetManager.BadStuffHappens();
                 Debug.Log("Make bad stuff happen to typing.");
                 break;
             case "Moving":

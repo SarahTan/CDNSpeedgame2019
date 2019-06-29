@@ -1,10 +1,21 @@
 ﻿using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
+    #region Statics
+
+    public static PlayerController Player;
+    public static EnemyManager EnemyManager;
+    public static AlphabetManager AlphabetManager;
+
+    public static event Action<bool> GamePausedEvent = null;
+
+    #endregion
+
     #region Fields
 
     [SerializeField]
@@ -37,6 +48,8 @@ public class GameManager : Singleton<GameManager>
     private Texture2D fadeOutTexture;
     private float fadeOutTime = 0;
 
+    private GameObject wallsParent;
+
     #endregion
 
     #region Properties
@@ -57,37 +70,20 @@ public class GameManager : Singleton<GameManager>
     #endregion
 
     public bool GameIsPaused { get { return Time.timeScale == 0; } }
+    
+    //private void OnGUI()
+    //{
+    //    if (Player?.HitPoints <= 0)
+    //    {
+    //        var fadeOutAlpha = Mathf.SmoothStep(0, 0.95f, fadeOutTime / 15);
+    //        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height),
+    //            fadeOutTexture, ScaleMode.StretchToFill, true, 0, 
+    //            new Color(0, 0, 0, fadeOutAlpha), 0, 0);
 
-    public event Action<bool> GamePausedEvent = null;
+    //        fadeOutTime = fadeOutTime + Time.deltaTime;
+    //    }
+    //}
 
-    private void OnGUI()
-    {
-        if (PlayerController.Instance.HitPoints <= 0)
-        {
-            var fadeOutAlpha = Mathf.SmoothStep(0, 0.95f, fadeOutTime / 15);
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height),
-                fadeOutTexture, ScaleMode.StretchToFill, true, 0, 
-                new Color(0, 0, 0, fadeOutAlpha), 0, 0);
-
-            fadeOutTime = fadeOutTime + Time.deltaTime;
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        if (Time.timeSinceLevelLoad > lastScoreUpdate)
-        {
-            CurrentScore = CurrentScore + scoreIncrement;
-            lastScoreUpdate = lastScoreUpdate + 4;
-            scoreIncrement++;
-        }
-
-        if (Time.timeSinceLevelLoad > maxTime)
-        {
-            // TODO: WIN!!
-            return;
-        }
-    }
 
     private void Awake()
     {
@@ -96,6 +92,8 @@ public class GameManager : Singleton<GameManager>
 
         SceneManager.activeSceneChanged += OnSceneLoaded;
         Cloud.CloudDestroyedEvent += OnEnemyDestroyed;
+
+        SceneManager.LoadScene("MainMenu");
     }
 
     private void Update()
@@ -111,26 +109,33 @@ public class GameManager : Singleton<GameManager>
             PauseGame(true);
         }
 #endif
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            SceneManager.LoadScene("Main");
+        }
     }
 
     #region Events
 
+    private Coroutine updateScoreRoutine = null;
+
     private void OnSceneLoaded(Scene oldScene, Scene newScene)
     {
-        if(newScene.name == "main")
+        if(newScene.name == "Main")
         {
             SetUpWalls();
             gameRunningUI.SetActive(true);
             gamePausedUI.SetActive(false);
             CurrentScore = 0;
-            PlayerController.Instance.HitEnemyEvent += OnPlayerHitEnemy;
+            PlayerController.HitEnemyEvent += OnPlayerHitEnemy;
+            SafeStartRunUpdateScore();
         }
 
-        if(oldScene.name == "main")
+        if(oldScene.name == "Main")
         {
             gameRunningUI.SetActive(false);
             gamePausedUI.SetActive(false);
-            PlayerController.Instance.HitEnemyEvent -= OnPlayerHitEnemy;
+            PlayerController.HitEnemyEvent -= OnPlayerHitEnemy;
         }
     }
 
@@ -148,24 +153,58 @@ public class GameManager : Singleton<GameManager>
 
     private void SetUpWalls()
     {
-        var extents = Utils.GetScreenExtents() + new Vector2(0.5f, 0.5f);
+        if (wallsParent == null)
+        {
+            wallsParent = new GameObject("Walls");
+            wallsParent.transform.SetParent(transform);
 
-        var rightWall = Instantiate(wallPrefab);
-        rightWall.transform.position = new Vector2(extents.x, 0f);
-        rightWall.transform.localScale = new Vector2(1f, extents.y * 2);
+            var extents = Utils.GetScreenExtents() + new Vector2(0.5f, 0.5f);
 
-        var leftWall = Instantiate(wallPrefab);
-        leftWall.transform.position = new Vector2(-extents.x, 0f);
-        leftWall.transform.localScale = new Vector2(1f, extents.y * 2);
+            var rightWall = Instantiate(wallPrefab, wallsParent.transform);
+            rightWall.transform.position = new Vector2(extents.x, 0f);
+            rightWall.transform.localScale = new Vector2(1f, extents.y * 2);
 
-        var topWall = Instantiate(wallPrefab);
-        topWall.transform.position = new Vector2(0f, extents.y);
-        topWall.transform.localScale = new Vector2(extents.x * 2, 1f);
+            var leftWall = Instantiate(wallPrefab, wallsParent.transform);
+            leftWall.transform.position = new Vector2(-extents.x, 0f);
+            leftWall.transform.localScale = new Vector2(1f, extents.y * 2);
 
-        var botWall = Instantiate(wallPrefab);
-        botWall.transform.position = new Vector2(0f, -extents.y);
-        botWall.transform.localScale = new Vector2(extents.x * 2, 1f);
+            var topWall = Instantiate(wallPrefab, wallsParent.transform);
+            topWall.transform.position = new Vector2(0f, extents.y);
+            topWall.transform.localScale = new Vector2(extents.x * 2, 1f);
+
+            var botWall = Instantiate(wallPrefab, wallsParent.transform);
+            botWall.transform.position = new Vector2(0f, -extents.y);
+            botWall.transform.localScale = new Vector2(extents.x * 2, 1f);
+        }
     }    
+
+    private void SafeStartRunUpdateScore()
+    {
+        if(updateScoreRoutine != null)
+        {
+            StopCoroutine(updateScoreRoutine);
+        }
+        updateScoreRoutine = StartCoroutine(RunUpdateScore());
+    }
+
+    private IEnumerator RunUpdateScore()
+    {
+        while (SceneManager.GetActiveScene().name == "Main")
+        {
+            CurrentScore = CurrentScore + scoreIncrement;
+            scoreIncrement++;
+
+            if (Time.timeSinceLevelLoad > maxTime)
+            {
+                // TODO: WIN!!
+                
+            }
+
+            yield return new WaitForSeconds(4f);
+        }
+
+        updateScoreRoutine = null;
+    }
 
     private void UpdateScore(int segmentLength, int stringLength)
     {
@@ -176,7 +215,7 @@ public class GameManager : Singleton<GameManager>
     private void PauseGame(bool pause)
     {
         // Can't pause on death
-        if (PlayerController.Instance.HitPoints <= 0)
+        if (Player?.HitPoints <= 0)
         {
             return;
         }
@@ -201,6 +240,13 @@ public class GameManager : Singleton<GameManager>
     public void Button_Resume()
     {
         ClickButtonSound();
+        PauseGame(false);
+    }
+
+    public void Button_Restart()
+    {
+        ClickButtonSound();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         PauseGame(false);
     }
 

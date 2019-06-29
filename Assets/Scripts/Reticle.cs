@@ -27,7 +27,7 @@ public class Reticle : MonoBehaviour
 
     private void Awake()
     {
-        GameManager.Instance.GamePausedEvent += OnGamePaused;
+        GameManager.GamePausedEvent += OnGamePaused;
     }
 
     private void FixedUpdate()
@@ -37,10 +37,7 @@ public class Reticle : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.GamePausedEvent -= OnGamePaused;
-        }
+        GameManager.GamePausedEvent -= OnGamePaused;
     }
 
     #endregion
