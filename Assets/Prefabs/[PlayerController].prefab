@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitInvincibilityDuration: 0
-  hitPoints: 10
+  HitPoints: 10
   reticlePrefab: {fileID: 8377204458392036862, guid: 008e742d4f509b649b43d9c7f2ba51e6,
     type: 3}
   laser: {fileID: 4280708891273526408}

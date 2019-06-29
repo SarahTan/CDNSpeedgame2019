@@ -8,7 +8,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1269932623856322677}
+  - component: {fileID: 8985306857177347657}
   - component: {fileID: 1269932623856322676}
   m_Layer: 0
   m_Name: '[EnemyManager]'
@@ -17,8 +17,8 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1269932623856322677
-Transform:
+--- !u!224 &8985306857177347657
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -31,6 +31,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1269932623856322676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47,17 +52,6 @@ MonoBehaviour:
     type: 3}
   starPrefab: {fileID: 1585565366090150529, guid: 8cd17647e4350254b9706399d5ede049,
     type: 3}
-  cloudStrings:
-  - Lorem
-  - ipsum
-  - dolor
-  - consectetur
-  - adipiscing
-  - eiusmod
-  - tempor
-  - incididunt
-  - labore
-  - dolore
   starSpeed: 1.5
   SpawnDuration: 1
   MaxSpeed: 1.5

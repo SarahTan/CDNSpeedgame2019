@@ -22,8 +22,7 @@ public class PlayerController : Singleton<PlayerController>
 
     [SerializeField]
     private float hitInvincibilityDuration;
-    [SerializeField]
-    private float hitPoints;
+    public float HitPoints;
 
     [Header("Mouse")]
     [SerializeField]
@@ -157,11 +156,6 @@ public class PlayerController : Singleton<PlayerController>
 
     private void OnGUI()
     {
-        if (hitPoints <= 0)
-        {
-            return;
-        }
-
         // Typer
         if ((LaserIsActive || Alphabet.TRACKINGMISSILEMODE)
             && Event.current.isKey)
@@ -210,9 +204,9 @@ public class PlayerController : Singleton<PlayerController>
 
     public void GetHit(float damage)
     {
-        hitPoints -= damage;
-        Debug.Log("Hit points left: " + hitPoints);
-        if (hitPoints <= 0)
+        HitPoints -= damage;
+        Debug.Log("Hit points left: " + HitPoints);
+        if (HitPoints <= 0)
         {
             // Lock controls
             speed = 0;
@@ -227,6 +221,7 @@ public class PlayerController : Singleton<PlayerController>
                 alphabet.IsActive = false;
             }
 
+            Cursor.lockState = CursorLockMode.None;
             GameManager.Instance.DeathSound();
             StartCoroutine(DeathRoutine());
             return;
@@ -238,9 +233,9 @@ public class PlayerController : Singleton<PlayerController>
     private IEnumerator DeathRoutine()
     {
         // Slowly fade away
-        while (hitPoints > -10)
+        while (HitPoints > -15)
         {
-            hitPoints = hitPoints - 1;
+            HitPoints = HitPoints - 1;
             ChangeColor();
             yield return new WaitForSeconds(0.1f);
         }
@@ -261,7 +256,7 @@ public class PlayerController : Singleton<PlayerController>
     /// <param name="BadStuffCategories">The categories of which bad stuff happens - "Typing", "Targeting", or "Moving"</param>
     public void BadStuffHappens(params string[] BadStuffCategories)
     {
-        if (hitPoints <= 0)
+        if (HitPoints <= 0)
         {
             return;
         }
@@ -294,7 +289,7 @@ public class PlayerController : Singleton<PlayerController>
     private void ChangeColor()
     {
         var emission = glow.emission;
-        emission.rateOverTime = new ParticleSystem.MinMaxCurve(hitPoints * 2);
+        emission.rateOverTime = new ParticleSystem.MinMaxCurve(HitPoints * 2);
 
         var renderer = GetComponent<SpriteRenderer>();
 
@@ -303,7 +298,7 @@ public class PlayerController : Singleton<PlayerController>
             1.0f - (playerSpeedModifiers.Count * 0.05f),
             1.0f,
             1.0f,
-            0.4f + 0.06f * hitPoints);
+            0.4f + 0.06f * HitPoints);
     }
 
     /// <summary>

@@ -33,6 +33,10 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     public AudioSource bgMusic;
 
+    [SerializeField]
+    private Texture2D fadeOutTexture;
+    private float fadeOutTime = 0;
+
     #endregion
 
     #region Properties
@@ -55,6 +59,19 @@ public class GameManager : Singleton<GameManager>
     public bool GameIsPaused { get { return Time.timeScale == 0; } }
 
     public event Action<bool> GamePausedEvent = null;
+
+    private void OnGUI()
+    {
+        if (PlayerController.Instance.HitPoints <= 0)
+        {
+            var fadeOutAlpha = Mathf.SmoothStep(0, 0.95f, fadeOutTime / 15);
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height),
+                fadeOutTexture, ScaleMode.StretchToFill, true, 0, 
+                new Color(0, 0, 0, fadeOutAlpha), 0, 0);
+
+            fadeOutTime = fadeOutTime + Time.deltaTime;
+        }
+    }
 
     private void FixedUpdate()
     {
@@ -158,6 +175,12 @@ public class GameManager : Singleton<GameManager>
 
     private void PauseGame(bool pause)
     {
+        // Can't pause on death
+        if (PlayerController.Instance.HitPoints <= 0)
+        {
+            return;
+        }
+
         ClickButtonSound();
         Time.timeScale = pause ? 0 : 1;
         gamePausedUI.SetActive(pause);
