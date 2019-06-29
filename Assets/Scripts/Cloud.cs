@@ -193,7 +193,6 @@ public class Cloud : MonoBehaviour
 
     public void DestroyCloud(bool giveScore = true)
     {
-        GameManager.Instance.DestroyCloudSound();
         for (int i = 0; i < currentNumberOfSegments; i++)
         {
             segments[i].CloudSegmentStateChangeEvent -= OnSegmentStateChanged;
@@ -202,6 +201,7 @@ public class Cloud : MonoBehaviour
 
         if (giveScore)
         {
+            GameManager.Instance.DestroyCloudSound();
             CloudDestroyedEvent?.Invoke(currentNumberOfSegments, targetString.Length);
         }
 

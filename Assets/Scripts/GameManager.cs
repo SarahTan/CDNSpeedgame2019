@@ -27,6 +27,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private GameObject mainMenuUI;
 
+    AudioSource[] audioSources;
     #endregion
 
     #region Properties
@@ -73,6 +74,8 @@ public class GameManager : Singleton<GameManager>
 
         SceneManager.activeSceneChanged += OnSceneLoaded;
         Cloud.CloudDestroyedEvent += OnEnemyDestroyed;
+
+        audioSources = GetComponents<AudioSource>();
     }
 
     private void Update()
@@ -187,57 +190,57 @@ public class GameManager : Singleton<GameManager>
     
     public void DeathSound()
     {
-
+        audioSources[8].Play();
     }
 
     public void BadMoveSound() // When you move badly
     {
-
+        audioSources[3].Play();
     }
 
     public void HitCloudSound() // When you hit a cloud with your body
     {
-
+        audioSources[2].Play();
     }
 
     public void FireLetterSound() // When you fire a letter
     {
-
+        // Heh. Let's not play a sound. Too much spam.
     }
 
     public void LetterDisappearSound() // When a letter disappears into the reticle
     {
-
+        audioSources[5].Play(); // Same sound as letter hitting the right cloud
     }
 
     public void LetterHitCorrectSound() // Letter hits the right cloud
     {
-
+        audioSources[5].Play();
     }
 
     public void LetterHitWrongSound() // Letter hits the wrong cloud
     {
-
+        audioSources[4].Play();
     }
 
     public void DestroySegmentSound() // Destroy a cloud segment
     {
-
+        audioSources[7].Play();
     }
 
     public void DestroyCloudSound() // Destroy a whole cloud
     {
-
+        audioSources[6].Play();
     }
 
     public void HitStarSound() // Run into a star
     {
-
+        audioSources[1].Play();
     }
 
     public void ClickButtonSound() // Click a button
     {
-
+        audioSources[0].Play();
     }
     #endregion SoundFx
 }
