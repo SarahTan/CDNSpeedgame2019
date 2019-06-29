@@ -43,6 +43,8 @@ public class PlayerController : Singleton<PlayerController>
     private float slowdownDuration;
     [SerializeField]
     private float slowdownFactor;
+    [SerializeField]
+    private int maxSlowdownLimit;
     
     private bool wasUsingNumpad = false; // Tracks whether the LAST PRESSED MOVEMENT was using the numpad
     private Vector2 movementDirection = Vector2.zero; // Tracks the CURRENT MOVEMENT DIRECTION
@@ -340,7 +342,7 @@ public class PlayerController : Singleton<PlayerController>
 
             var totalSlowdown = playerSpeedModifiers.Count * slowdownFactor;
             bool hardMode = false;
-            if (playerSpeedModifiers.Count > 10)
+            if (playerSpeedModifiers.Count > maxSlowdownLimit)
             {
                 hardMode = true;
                 totalSlowdown = 0;

@@ -16,6 +16,8 @@ public class Reticle : MonoBehaviour
     private float slowdownDuration;
     [SerializeField]
     private float slowdownFactor;
+    [SerializeField]
+    private int maxSlowdownLimit;
     
     // Expiration time of modifiers which slow down mouse movement - sorted
     private Queue<float> reticleSpeedModifiers = new Queue<float>();
@@ -68,7 +70,7 @@ public class Reticle : MonoBehaviour
 
         var totalSlowdown = reticleSpeedModifiers.Count * slowdownFactor;
         bool hardMode = false;
-        if (reticleSpeedModifiers.Count > 20)
+        if (reticleSpeedModifiers.Count > maxSlowdownLimit)
         {
             hardMode = true;
             totalSlowdown = 0;
@@ -90,8 +92,8 @@ public class Reticle : MonoBehaviour
 
     private void ChangeColor()
     {
-        renderer.color = new Color(1.0f - reticleSpeedModifiers.Count * 0.04f,
-            0f + reticleSpeedModifiers.Count * 0.05f,
-            0f + reticleSpeedModifiers.Count * 0.02f);
+        renderer.color = new Color(1.0f - (reticleSpeedModifiers.Count * 0.8f)/maxSlowdownLimit,
+            0f + (reticleSpeedModifiers.Count * 0.6f)/maxSlowdownLimit,
+            0f + (reticleSpeedModifiers.Count * 0.4f)/maxSlowdownLimit);
     }
 }

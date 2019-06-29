@@ -60,6 +60,7 @@ MonoBehaviour:
   rb: {fileID: 6615461269691885516}
   slowdownDuration: 15
   slowdownFactor: 0.25
+  maxSlowdownLimit: 10
 --- !u!212 &4280708890353569395
 SpriteRenderer:
   m_ObjectHideFlags: 0
