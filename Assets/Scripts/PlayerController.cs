@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -206,11 +207,32 @@ public class PlayerController : Singleton<PlayerController>
         Debug.Log("Hit points left: " + hitPoints);
         if (hitPoints <= 0)
         {
-            // TODO: Lose the game
+            StartCoroutine(DeathRoutine());
             return;
         }
 
         ChangeColor();
+    }
+
+    private IEnumerator DeathRoutine()
+    {
+        // Lock controls
+        speed = 0;
+        playerSpeedModifiers.Clear();
+        Reticle.ForceMultiplier = 0;
+        Reticle.ReticleSpeedModifiers.Clear();
+
+        // Slowly fade away
+        var collider = this.GetComponent<CircleCollider2D>();
+        while (hitPoints > -10)
+        {
+            hitPoints = hitPoints - 1;
+            ChangeColor();
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        // TODO: Reset the game
+        yield return null;
     }
 
     private void OnGamePaused(bool isPaused)
@@ -225,6 +247,11 @@ public class PlayerController : Singleton<PlayerController>
     /// <param name="BadStuffCategories">The categories of which bad stuff happens - "Typing", "Targeting", or "Moving"</param>
     public void BadStuffHappens(params string[] BadStuffCategories)
     {
+        if (hitPoints <= 0)
+        {
+            return;
+        }
+
         var chosenCategory = new System.Random().Next(0, BadStuffCategories.Length);
         switch (BadStuffCategories[chosenCategory])
         {

@@ -8,8 +8,6 @@ public class Reticle : MonoBehaviour
     [SerializeField]
     private Rigidbody2D rb;
     [SerializeField]
-    private float forceMultiplier;
-    [SerializeField]
     private float maxSpeed;
 
     [SerializeField]
@@ -18,9 +16,11 @@ public class Reticle : MonoBehaviour
     private float slowdownFactor;
     [SerializeField]
     private int maxSlowdownLimit;
-    
+
+    public float ForceMultiplier;
+
     // Expiration time of modifiers which slow down mouse movement - sorted
-    private Queue<float> reticleSpeedModifiers = new Queue<float>();
+    public Queue<float> ReticleSpeedModifiers = new Queue<float>();
     private float lastBadStuffTime = 0;
 
     #region Unity Lifecycle
@@ -53,10 +53,10 @@ public class Reticle : MonoBehaviour
     private void UpdateReticlePosition()
     {
         // Remove the first reticle speed modifier if it's expired
-        if (reticleSpeedModifiers.Count > 0
-            && reticleSpeedModifiers.Peek() < Time.time)
+        if (ReticleSpeedModifiers.Count > 0
+            && ReticleSpeedModifiers.Peek() < Time.time)
         {
-            reticleSpeedModifiers.Dequeue();
+            ReticleSpeedModifiers.Dequeue();
             ChangeColor();
         }
 
@@ -68,32 +68,32 @@ public class Reticle : MonoBehaviour
 
         var forceDirection = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 
-        var totalSlowdown = reticleSpeedModifiers.Count * slowdownFactor;
+        var totalSlowdown = ReticleSpeedModifiers.Count * slowdownFactor;
         bool hardMode = false;
-        if (reticleSpeedModifiers.Count > maxSlowdownLimit)
+        if (ReticleSpeedModifiers.Count > maxSlowdownLimit)
         {
             hardMode = true;
             totalSlowdown = 0;
         }
 
-        rb.AddForce(forceDirection * (forceMultiplier - totalSlowdown) * (hardMode ? -1 : 1));
+        rb.AddForce(forceDirection * (ForceMultiplier - totalSlowdown) * (hardMode ? -1 : 1));
     }
 
     public void BadStuffHappens()
     {
         if (lastBadStuffTime < Time.time - 0.1f) // For some reason, this fires like, 3 times at once
         {
-            reticleSpeedModifiers.Enqueue(Time.time + slowdownDuration);
+            ReticleSpeedModifiers.Enqueue(Time.time + slowdownDuration);
             lastBadStuffTime = Time.time;
-            Debug.Log("Reticle slowdowns: " + reticleSpeedModifiers.Count);
+            Debug.Log("Reticle slowdowns: " + ReticleSpeedModifiers.Count);
             ChangeColor();
         }
     }
 
     private void ChangeColor()
     {
-        renderer.color = new Color(1.0f - (reticleSpeedModifiers.Count * 0.8f)/maxSlowdownLimit,
-            0f + (reticleSpeedModifiers.Count * 0.6f)/maxSlowdownLimit,
-            0f + (reticleSpeedModifiers.Count * 0.4f)/maxSlowdownLimit);
+        renderer.color = new Color(1.0f - (ReticleSpeedModifiers.Count * 0.8f)/maxSlowdownLimit,
+            0f + (ReticleSpeedModifiers.Count * 0.6f)/maxSlowdownLimit,
+            0f + (ReticleSpeedModifiers.Count * 0.4f)/maxSlowdownLimit);
     }
 }

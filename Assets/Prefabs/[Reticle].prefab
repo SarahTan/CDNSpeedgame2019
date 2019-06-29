@@ -95,11 +95,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderer: {fileID: 8377204458392036863}
   rb: {fileID: 5035542606091052268}
-  forceMultiplier: 1250
   maxSpeed: 10
   slowdownDuration: 15
   slowdownFactor: 100
   maxSlowdownLimit: 10
+  ForceMultiplier: 1250
 --- !u!50 &5035542606091052268
 Rigidbody2D:
   serializedVersion: 4
