@@ -263,7 +263,7 @@ public class GameManager : Singleton<GameManager>
         ActivateUI(gameOverUI);
         Time.timeScale = 0f;
         gameOverScoreText.SetText($"Score: {CurrentScore}");
-        timeText.SetText($"Time alive: {Time.timeSinceLevelLoad.ToString("0.0")}s");
+        timeText.SetText($"You shone for: {Time.timeSinceLevelLoad.ToString("0.0")}s");
 
         LockCursor(false);
     }
