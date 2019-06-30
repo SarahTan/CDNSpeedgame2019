@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,14 +13,12 @@ public class GameManager : Singleton<GameManager>
     public static EnemyManager EnemyManager;
     public static AlphabetManager AlphabetManager;
 
-    public static event Action<bool> GamePausedEvent = null;
-
     #endregion
 
     #region Fields
 
-    [SerializeField]
-    private GameObject wallPrefab;
+    //*****************
+    // UI 
 
     [Header("Game Running")]
     [SerializeField]
@@ -27,16 +26,32 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private TextMeshProUGUI scoreText;
 
-    [SerializeField]
-    private int maxTime;
-
-    [Header("Game Running")]
+    [Header("Game Paused")]
     [SerializeField]
     private GameObject gamePausedUI;
+
+    [Header("Game Over")]
+    [SerializeField]
+    private GameObject gameOverUI;
+    [SerializeField]
+    private TextMeshProUGUI gameOverScoreText;
+    [SerializeField]
+    private TextMeshProUGUI timeText;
 
     [Header("Main Menu")]
     [SerializeField]
     private GameObject mainMenuUI;
+
+    [Header("Instructions")]
+    [SerializeField]
+    private GameObject instructionsUI;
+
+    // ****************
+
+    [SerializeField]
+    private GameObject wallPrefab;
+    [SerializeField]
+    private int maxTime;
 
     [SerializeField]
     private AudioSource[] audioSources;
@@ -49,14 +64,13 @@ public class GameManager : Singleton<GameManager>
     private float fadeOutTime = 0;
 
     private GameObject wallsParent;
-
+    
     #endregion
 
     #region Properties
 
     private int _currentScore = 0;
     private int scoreIncrement = 1;
-    private int lastScoreUpdate = 1;
     public int CurrentScore
     {
         get { return _currentScore; }
@@ -67,10 +81,14 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    #endregion
+    private bool HasSeenTutorial
+    {
+        get { return PlayerPrefs.GetInt("SEEN_TUTORIAL") == 1 ? true : false; }
+        set { PlayerPrefs.SetInt("SEEN_TUTORIAL", value ? 1 : 0); }
+    }
 
-    public bool GameIsPaused { get { return Time.timeScale == 0; } }
-    
+    #endregion
+        
     //private void OnGUI()
     //{
     //    if (Player?.HitPoints <= 0)
@@ -92,8 +110,27 @@ public class GameManager : Singleton<GameManager>
 
         SceneManager.activeSceneChanged += OnSceneLoaded;
         Cloud.CloudDestroyedEvent += OnEnemyDestroyed;
+        PlayerController.HitEnemyEvent += OnPlayerHitEnemy;
 
         SceneManager.LoadScene("MainMenu");
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.activeSceneChanged -= OnSceneLoaded;
+        Cloud.CloudDestroyedEvent -= OnEnemyDestroyed;
+        PlayerController.HitEnemyEvent -= OnPlayerHitEnemy;
+    }
+
+    private void ActivateUI(GameObject ui)
+    {
+        gameRunningUI.SetActive(ui == gameRunningUI);
+        gamePausedUI.SetActive(ui == gamePausedUI);
+        gameOverUI.SetActive(ui == gameOverUI);
+        mainMenuUI.SetActive(ui == mainMenuUI);
+        instructionsUI.SetActive(ui == instructionsUI);
+
+        Time.timeScale = gamePausedUI.activeSelf ? 0 : 1;
     }
 
     private void Update()
@@ -109,33 +146,26 @@ public class GameManager : Singleton<GameManager>
             PauseGame(true);
         }
 #endif
-        else if (Input.GetKeyDown(KeyCode.Space))
-        {
-            SceneManager.LoadScene("Main");
-        }
     }
 
     #region Events
 
-    private Coroutine updateScoreRoutine = null;
 
     private void OnSceneLoaded(Scene oldScene, Scene newScene)
     {
-        if(newScene.name == "Main")
+        switch (newScene.name)
         {
-            SetUpWalls();
-            gameRunningUI.SetActive(true);
-            gamePausedUI.SetActive(false);
-            CurrentScore = 0;
-            PlayerController.HitEnemyEvent += OnPlayerHitEnemy;
-            SafeStartRunUpdateScore();
-        }
+            case "Main":
+                StartGame();
+                break;
 
-        if(oldScene.name == "Main")
-        {
-            gameRunningUI.SetActive(false);
-            gamePausedUI.SetActive(false);
-            PlayerController.HitEnemyEvent -= OnPlayerHitEnemy;
+            case "MainMenu":
+                ActivateUI(mainMenuUI);
+                break;
+
+            case "Instructions":
+                ActivateUI(instructionsUI);
+                break;
         }
     }
 
@@ -146,7 +176,8 @@ public class GameManager : Singleton<GameManager>
 
     private void OnEnemyDestroyed(int segmentLength, int stringLength)
     {
-        UpdateScore(segmentLength, stringLength);
+        // Destroying things gets more score later in the game
+        CurrentScore += segmentLength + stringLength + scoreIncrement;
     }
 
     #endregion
@@ -176,8 +207,10 @@ public class GameManager : Singleton<GameManager>
             botWall.transform.position = new Vector2(0f, -extents.y);
             botWall.transform.localScale = new Vector2(extents.x * 2, 1f);
         }
-    }    
+    }
 
+
+    private Coroutine updateScoreRoutine = null;
     private void SafeStartRunUpdateScore()
     {
         if(updateScoreRoutine != null)
@@ -205,11 +238,23 @@ public class GameManager : Singleton<GameManager>
 
         updateScoreRoutine = null;
     }
-
-    private void UpdateScore(int segmentLength, int stringLength)
+    
+    private void LockCursor(bool locked)
     {
-        // Destroying things gets more score later in the game
-        CurrentScore += segmentLength + stringLength + scoreIncrement;
+        Cursor.visible = locked ? false : true;
+        Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+
+    }
+
+    #region Game States
+
+    private void StartGame()
+    {
+        SetUpWalls();
+        ActivateUI(gameRunningUI);
+        CurrentScore = 0;
+        SafeStartRunUpdateScore();
+        LockCursor(true);
     }
 
     private void PauseGame(bool pause)
@@ -220,22 +265,50 @@ public class GameManager : Singleton<GameManager>
             return;
         }
 
-        ClickButtonSound();
-        Time.timeScale = pause ? 0 : 1;
+        LockCursor(!pause);
         gamePausedUI.SetActive(pause);
+        Time.timeScale = pause ? 0 : 1;
+        bgMusic.volume = pause ? 0.2f : 0.6f;
+    }
 
-        GamePausedEvent?.Invoke(pause);
-        if (pause)
+    private void RestartGame()
+    {
+        SceneManager.LoadScene("Main");
+    }
+
+    public void EndGame()
+    {
+        ActivateUI(gameOverUI);
+        gameOverScoreText.SetText($"Score: {CurrentScore}");
+        timeText.SetText($"Time alive: {Time.timeSinceLevelLoad.ToString("0.0")}s");
+
+        LockCursor(true);
+    }
+
+    #endregion
+
+    #region Buttons
+
+    public void Button_Play()
+    {
+        ClickButtonSound();
+        if (HasSeenTutorial)
         {
-            bgMusic.volume = 0.2f;
+            SceneManager.LoadScene("Main");
         }
         else
         {
-            bgMusic.volume = 0.6f;
+            SceneManager.LoadScene("Instructions");
+            HasSeenTutorial = true;
         }
     }
 
-    #region Buttons
+    public void Button_Instructions()
+    {
+        ClickButtonSound();
+        SceneManager.LoadScene("Instructions");
+        HasSeenTutorial = true;
+    }
 
     public void Button_Resume()
     {
@@ -246,14 +319,13 @@ public class GameManager : Singleton<GameManager>
     public void Button_Restart()
     {
         ClickButtonSound();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        PauseGame(false);
+        RestartGame();
     }
 
     public void Button_MainMenu()
     {
         ClickButtonSound();
-        // TODO
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void Button_Quit()

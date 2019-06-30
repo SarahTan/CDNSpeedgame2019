@@ -24,28 +24,12 @@ public class Reticle : MonoBehaviour
     private float lastBadStuffTime = 0;
 
     #region Unity Lifecycle
-
-    private void Awake()
-    {
-        GameManager.GamePausedEvent += OnGamePaused;
-    }
-
+    
     private void FixedUpdate()
     {
         UpdateReticlePosition();
     }
-
-    private void OnDestroy()
-    {
-        GameManager.GamePausedEvent -= OnGamePaused;
-    }
-
     #endregion
-
-    private void OnGamePaused(bool isPaused)
-    {
-        Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
-    }
 
     private void UpdateReticlePosition()
     {

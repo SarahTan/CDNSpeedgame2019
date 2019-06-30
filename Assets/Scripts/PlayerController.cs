@@ -27,8 +27,6 @@ public class PlayerController : MonoBehaviour
     [Header("Mouse")]
     [SerializeField]
     private Reticle reticlePrefab;
-    [SerializeField]
-    private LineRenderer laser;
 
     [Header("Mover")]
     [SerializeField]
@@ -86,22 +84,11 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-
         // Force the position to Vector2 so it drops the non zero z-value
         Reticle = Instantiate(reticlePrefab, Utils.MainCam.ScreenToWorldPoint(Input.mousePosition).ToVector2(), Quaternion.identity);
         moveStopTime = Time.time;
-
-        // Start the laser
-        laser.startWidth = 0.5f;
-        laser.endWidth = 0.7f;
-        laser.startColor = new Color(0.5f, 0, 0);
-        laser.endColor = new Color(0, 0, 0.5f);
-
+        
         glow = GetComponent<ParticleSystem>();
-
-        GameManager.GamePausedEvent += OnGamePaused;
     }
     
     private void FixedUpdate()
@@ -150,7 +137,6 @@ public class PlayerController : MonoBehaviour
     private void OnDestroy()
     {
         GameManager.Player = null;
-        GameManager.GamePausedEvent -= OnGamePaused;
     }
 
     #endregion
@@ -174,7 +160,6 @@ public class PlayerController : MonoBehaviour
                 alphabet.IsActive = false;
             }
 
-            Cursor.lockState = CursorLockMode.None;
             GameManager.Instance.DeathSound();
             StartCoroutine(DeathRoutine());
             return;
@@ -193,14 +178,7 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
-        // TODO: Reset the game
-        yield return null;
-    }
-
-    private void OnGamePaused(bool isPaused)
-    {
-        laser.enabled = false;
-        Cursor.visible = isPaused;
+        GameManager.Instance.EndGame();
     }
 
     /// <summary>
