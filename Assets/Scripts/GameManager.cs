@@ -322,6 +322,7 @@ public class GameManager : Singleton<GameManager>
         }
         SceneManager.LoadScene("MainMenu");
         PauseGame(false);
+        LockCursor(false);
     }
 
     public void Button_Quit()
