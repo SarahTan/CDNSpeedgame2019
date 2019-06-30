@@ -48,7 +48,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: beffaecc69a078146ae49c6db530f950, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitInvincibilityDuration: 0
+  renderer: {fileID: 4280708890353569395}
+  hitInvincibilityDuration: 1
   HitPoints: 10
   reticlePrefab: {fileID: 8377204458392036862, guid: 008e742d4f509b649b43d9c7f2ba51e6,
     type: 3}

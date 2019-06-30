@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour
     #region Fields
 
     [SerializeField]
+    private new SpriteRenderer renderer;
+    [SerializeField]
     private float hitInvincibilityDuration;
     public float HitPoints;
 
@@ -217,19 +219,38 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private Coroutine flickerCoroutine;
     private void ChangeColor()
     {
         var emission = glow.emission;
-        emission.rateOverTime = new ParticleSystem.MinMaxCurve(HitPoints * 2);
-
-        var renderer = GetComponent<SpriteRenderer>();
-
+        emission.rateOverTime = new ParticleSystem.MinMaxCurve(HitPoints * 3);
+        
         // Assumes 10 hit points at start - adjust as necessary
-        renderer.color = new Color(
+        var newColor = new Color(
             1.0f - (playerSpeedModifiers.Count * 0.05f),
             1.0f,
             1.0f,
             0.4f + 0.06f * HitPoints);
+
+        if(flickerCoroutine != null)
+        {
+            StopCoroutine(flickerCoroutine);
+        }
+        flickerCoroutine = StartCoroutine(Flicker(newColor));
+
+        IEnumerator Flicker(Color color)
+        {
+            var isTransparent = true;
+            var transparentColor = new Color(color.r, color.g, color.b, 0);
+            var endTime = Time.time + hitInvincibilityDuration;
+            while(Time.time < endTime)
+            {
+                renderer.color = isTransparent ? transparentColor : color;
+                isTransparent = !isTransparent;
+                yield return null;
+            }
+            renderer.color = color;
+        }
     }
 
     /// <summary>
