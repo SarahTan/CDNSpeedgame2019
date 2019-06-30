@@ -59,10 +59,6 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     public AudioSource bgMusic;
 
-    [SerializeField]
-    private Texture2D fadeOutTexture;
-    private float fadeOutTime = 0;
-
     private GameObject wallsParent;
     
     #endregion
@@ -89,20 +85,6 @@ public class GameManager : Singleton<GameManager>
 
     #endregion
         
-    //private void OnGUI()
-    //{
-    //    if (Player?.HitPoints <= 0)
-    //    {
-    //        var fadeOutAlpha = Mathf.SmoothStep(0, 0.95f, fadeOutTime / 15);
-    //        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height),
-    //            fadeOutTexture, ScaleMode.StretchToFill, true, 0, 
-    //            new Color(0, 0, 0, fadeOutAlpha), 0, 0);
-
-    //        fadeOutTime = fadeOutTime + Time.deltaTime;
-    //    }
-    //}
-
-
     private void Awake()
     {
         // We want this to persist across all the different scenes
@@ -279,10 +261,11 @@ public class GameManager : Singleton<GameManager>
     public void EndGame()
     {
         ActivateUI(gameOverUI);
+        Time.timeScale = 0f;
         gameOverScoreText.SetText($"Score: {CurrentScore}");
         timeText.SetText($"Time alive: {Time.timeSinceLevelLoad.ToString("0.0")}s");
 
-        LockCursor(true);
+        LockCursor(false);
     }
 
     #endregion
