@@ -66,15 +66,15 @@ public class GameManager : Singleton<GameManager>
 
     #region Properties
 
-    private int _currentScore = 0;
-    private int scoreIncrement = 1;
-    public int CurrentScore
+    private float _currentScore = 0;
+    private float scoreIncrement = 1;
+    public float CurrentScore
     {
         get { return _currentScore; }
         private set
         {
             _currentScore = value;
-            scoreText.SetText($"Score: {_currentScore}");
+            scoreText.SetText($"Score: {Mathf.FloorToInt(_currentScore)}");
         }
     }
 
@@ -206,11 +206,18 @@ public class GameManager : Singleton<GameManager>
 
     private IEnumerator RunUpdateScore()
     {
+        var nextScoreIncrementTime = Time.time + 4f;
         while (SceneManager.GetActiveScene().name == "Main")
         {
-            CurrentScore = CurrentScore + scoreIncrement;
-            scoreIncrement++;
-            yield return new WaitForSeconds(4f);
+            yield return new WaitForSeconds(1f);
+
+            CurrentScore += scoreIncrement/4f;
+
+            if(nextScoreIncrementTime < Time.time)
+            {
+                scoreIncrement++;
+                nextScoreIncrementTime = Time.time + 4f;
+            }
         }
 
         updateScoreRoutine = null;
@@ -255,7 +262,7 @@ public class GameManager : Singleton<GameManager>
 
         PauseGame(true);
         ActivateUI(gameOverUI);
-        gameOverScoreText.SetText($"Score: {CurrentScore}");
+        gameOverScoreText.SetText($"Score: {Mathf.FloorToInt(CurrentScore)}");
         timeText.SetText($"You shone for: {Time.timeSinceLevelLoad.ToString("0.0")}s");
 
         LockCursor(false);
