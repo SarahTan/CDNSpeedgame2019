@@ -15,7 +15,6 @@ public class Alphabet : MonoBehaviour
     [SerializeField]
     private TextMeshPro text;
 
-    PlayerController player;
     float distanceMoved = 0;
 
     private Collider2D[] hitColliders = new Collider2D[MAX_COLLISIONS];
@@ -53,8 +52,7 @@ public class Alphabet : MonoBehaviour
 
     private void Start()
     {
-        player = GameManager.Player;
-        reticleRadius = player.Reticle.GetComponent<SpriteRenderer>().size.x / 2;
+        reticleRadius = GameManager.Player.Reticle.GetComponent<SpriteRenderer>().size.x / 2;
     }
 
     public void Activate(char newChar)
@@ -64,7 +62,7 @@ public class Alphabet : MonoBehaviour
         text.SetText(newChar.ToString());
 
         // Update position
-        transform.position = player.transform.position;
+        transform.position = GameManager.Player.transform.position;
         distanceMoved = 0;
 
         // Set active
@@ -88,7 +86,7 @@ public class Alphabet : MonoBehaviour
     private void UpdateLaser()
     {
         laser.SetPosition(0, transform.position);
-        laser.SetPosition(1, player.ReticleCenter);
+        laser.SetPosition(1, GameManager.Player.ReticleCenter);
 
         var newR = laser.endColor.r + Time.deltaTime * laserIncrement;
 
@@ -103,7 +101,7 @@ public class Alphabet : MonoBehaviour
             newR = 0.5f;
             laserIncrement = -laserIncrement;
         }
-        var reticleColor = player.Reticle.GetComponent<SpriteRenderer>().color;
+        var reticleColor = GameManager.Player.Reticle.GetComponent<SpriteRenderer>().color;
         laser.endColor = new Color(reticleColor.r, reticleColor.g, reticleColor.b, 0.1f);
         laser.startColor = new Color(newR - 0.3f, newR - 0.3f, newR, 0.1f);
     }
@@ -114,11 +112,11 @@ public class Alphabet : MonoBehaviour
         {
             transform.position = Vector2.MoveTowards(
                 transform.position,
-                player.ReticleCenter,
+                GameManager.Player.ReticleCenter,
                 GameManager.AlphabetManager.ModifiedAlphabetSpeed * Time.fixedDeltaTime);
             distanceMoved += GameManager.AlphabetManager.ModifiedAlphabetSpeed * Time.fixedDeltaTime;
 
-            if (Vector2.Distance(transform.position, player.ReticleCenter) < reticleRadius)
+            if (Vector2.Distance(transform.position, GameManager.Player.ReticleCenter) < reticleRadius)
             {
                 // Reached the target without colliding into anything, just deactivate it
                 GameManager.Instance.LetterDisappearSound();
