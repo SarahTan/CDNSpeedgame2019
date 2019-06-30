@@ -230,7 +230,7 @@ public class PlayerController : MonoBehaviour
             1.0f - (playerSpeedModifiers.Count * 0.05f),
             1.0f,
             1.0f,
-            0.4f + 0.06f * HitPoints);
+            0.2f + 0.08f * HitPoints);
 
         if(flickerCoroutine != null)
         {

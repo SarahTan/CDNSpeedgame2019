@@ -43,6 +43,8 @@ public class EnemyManager : MonoBehaviour
     private GameObject cloudsParent;
     private GameObject starsParent;
 
+    private float easyModeDuration = 45f;
+
     #endregion
 
     #region Unity Lifecycle
@@ -91,6 +93,10 @@ public class EnemyManager : MonoBehaviour
 
             // Spawn rate is determined solely by the game time
             var spawnRate = 0.15f - Time.timeSinceLevelLoad / 1000f;
+            if (Time.timeSinceLevelLoad < easyModeDuration)
+            {
+                spawnRate *= Mathf.Lerp(3f, 1f, Time.timeSinceLevelLoad / easyModeDuration);
+            }
             if (spawnRate < 0)
             {
                 spawnRate = 0;
@@ -139,6 +145,11 @@ public class EnemyManager : MonoBehaviour
 
             var numberOfActiveClouds = clouds.Count(e => e.isActiveAndEnabled);
             var idealNumberOfActiveClouds = 20 + Time.timeSinceLevelLoad / 5;
+            if(Time.timeSinceLevelLoad < easyModeDuration)
+            {
+                idealNumberOfActiveClouds *= Mathf.Lerp(0.3f, 1f, Time.timeSinceLevelLoad / easyModeDuration);
+            }
+
             var baseSpawnRate = 100 - Time.timeSinceLevelLoad / 10;
             if (baseSpawnRate < 10)
             {
