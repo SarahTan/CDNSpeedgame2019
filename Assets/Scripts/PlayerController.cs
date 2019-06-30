@@ -45,7 +45,8 @@ public class PlayerController : MonoBehaviour
     private float slowdownFactor;
     [SerializeField]
     private int maxSlowdownLimit;
-    
+
+    private bool isFirstMove = true;    // Tracks if the player has pressed a movement key yet
     private bool wasUsingNumpad = false; // Tracks whether the LAST PRESSED MOVEMENT was using the numpad
     private Vector2 movementDirection = Vector2.zero; // Tracks the CURRENT MOVEMENT DIRECTION
     private float moveStopTime; // Tracks the time AFTER WHICH holding a button NO LONGER MOVES
@@ -303,8 +304,9 @@ public class PlayerController : MonoBehaviour
             moveStartTime = Time.time;
         }
         else if (arrowMovment != Vector2.zero
-            && wasUsingNumpad)
+            && (wasUsingNumpad || isFirstMove))
         {
+            isFirstMove = false;
             movementDirection = arrowMovment;
             wasUsingNumpad = false;
             moveStopTime = Time.time + maxMoveDurationPerKeypress;
@@ -326,7 +328,6 @@ public class PlayerController : MonoBehaviour
             || numpadMovement != Vector2.zero))
             || Time.time < moveStartTime + minMovedurationPerKeypress)
         {
-
             var totalSlowdown = playerSpeedModifiers.Count * slowdownFactor;
             bool hardMode = false;
             if (playerSpeedModifiers.Count > maxSlowdownLimit)
