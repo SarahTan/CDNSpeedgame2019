@@ -50,17 +50,18 @@ public class GameManager : Singleton<GameManager>
 
     [SerializeField]
     private GameObject wallPrefab;
-    [SerializeField]
-    private int maxTime;
 
     [SerializeField]
     private AudioSource[] audioSources;
 
     [SerializeField]
+    public AudioSource endGameMusic;
+    [SerializeField]
     public AudioSource bgMusic;
 
     private GameObject wallsParent;
-    
+    private bool gameEnded = false;
+
     #endregion
 
     #region Properties
@@ -111,23 +112,24 @@ public class GameManager : Singleton<GameManager>
         gameOverUI.SetActive(ui == gameOverUI);
         mainMenuUI.SetActive(ui == mainMenuUI);
         instructionsUI.SetActive(ui == instructionsUI);
-
-        Time.timeScale = gamePausedUI.activeSelf ? 0 : 1;
     }
 
     private void Update()
     {
+        if (SceneManager.GetActiveScene().name == "Main")
+        {
 #if UNITY_EDITOR
-        if(Input.GetKeyDown(KeyCode.Delete))
-        {
-            PauseGame(true);
-        }
+            if(Input.GetKeyDown(KeyCode.Delete))
+            {
+                PauseGame(true);
+            }
 #else
-        if(Input.GetKeyDown(KeyCode.Escape))
-        {
-            PauseGame(true);
-        }
+            if(Input.GetKeyDown(KeyCode.Escape))
+            {
+                PauseGame(true);
+            }
 #endif
+        }
     }
 
     #region Events
@@ -208,13 +210,6 @@ public class GameManager : Singleton<GameManager>
         {
             CurrentScore = CurrentScore + scoreIncrement;
             scoreIncrement++;
-
-            if (Time.timeSinceLevelLoad > maxTime)
-            {
-                // TODO: WIN!!
-                
-            }
-
             yield return new WaitForSeconds(4f);
         }
 
@@ -225,32 +220,26 @@ public class GameManager : Singleton<GameManager>
     {
         Cursor.visible = locked ? false : true;
         Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
-
     }
 
     #region Game States
 
     private void StartGame()
     {
+        gameEnded = false;
         SetUpWalls();
         ActivateUI(gameRunningUI);
         CurrentScore = 0;
         SafeStartRunUpdateScore();
-        LockCursor(true);
+        PauseGame(false);
     }
 
     private void PauseGame(bool pause)
     {
-        // Can't pause on death
-        if (Player?.HitPoints <= 0)
-        {
-            return;
-        }
-
         LockCursor(!pause);
         gamePausedUI.SetActive(pause);
         Time.timeScale = pause ? 0 : 1;
-        bgMusic.volume = pause ? 0.2f : 0.6f;
+        bgMusic.volume = pause ? 0.1f : 0.3f;
     }
 
     private void RestartGame()
@@ -260,8 +249,12 @@ public class GameManager : Singleton<GameManager>
 
     public void EndGame()
     {
+        gameEnded = true;
+        bgMusic.Stop();
+        endGameMusic.Play();
+
+        PauseGame(true);
         ActivateUI(gameOverUI);
-        Time.timeScale = 0f;
         gameOverScoreText.SetText($"Score: {CurrentScore}");
         timeText.SetText($"You shone for: {Time.timeSinceLevelLoad.ToString("0.0")}s");
 
@@ -302,13 +295,26 @@ public class GameManager : Singleton<GameManager>
     public void Button_Restart()
     {
         ClickButtonSound();
+        if (gameEnded)
+        {
+            bgMusic.Play();
+            endGameMusic.Stop();
+        }
+
         RestartGame();
     }
 
     public void Button_MainMenu()
     {
         ClickButtonSound();
+
+        if (gameEnded)
+        {
+            bgMusic.Play();
+            endGameMusic.Stop();
+        }
         SceneManager.LoadScene("MainMenu");
+        PauseGame(false);
     }
 
     public void Button_Quit()
@@ -322,11 +328,19 @@ public class GameManager : Singleton<GameManager>
     #region SoundFx
     // Finding code where sound is played is confusing
     // So here's where all sound is played
-    
-    public void DeathSound()
+
+    public void ClickButtonSound() // Click a button
     {
-        audioSources[8].Play();
-        bgMusic.Stop();
+        audioSources[0].Play();
+    }
+
+    public void HitStarSound() // Run into a star
+    {
+        audioSources[1].Play();
+    }
+    public void HitCloudSound() // Run into a cloud
+    {
+        audioSources[2].Play();
     }
 
     public void BadMoveSound() // When you move badly
@@ -334,49 +348,26 @@ public class GameManager : Singleton<GameManager>
         audioSources[3].Play();
     }
 
-    public void HitCloudSound() // When you hit a cloud with your body
+    public void LetterHitWrongSound() // Letter hits the wrong cloud
     {
-        audioSources[2].Play();
-    }
-
-    public void FireLetterSound() // When you fire a letter
-    {
-        // Heh. Let's not play a sound. Too much spam.
-    }
-
-    public void LetterDisappearSound() // When a letter disappears into the reticle
-    {
-        audioSources[5].Play(); // Same sound as letter hitting the right cloud
+        audioSources[4].Play();
     }
 
     public void LetterHitCorrectSound() // Letter hits the right cloud
     {
         audioSources[5].Play();
     }
-
-    public void LetterHitWrongSound() // Letter hits the wrong cloud
+    
+    public void DestroyCloudSound() // Destroy a whole cloud
     {
-        audioSources[4].Play();
+        audioSources[6].Play();
     }
 
     public void DestroySegmentSound() // Destroy a cloud segment
     {
         audioSources[7].Play();
     }
+    
 
-    public void DestroyCloudSound() // Destroy a whole cloud
-    {
-        audioSources[6].Play();
-    }
-
-    public void HitStarSound() // Run into a star
-    {
-        audioSources[1].Play();
-    }
-
-    public void ClickButtonSound() // Click a button
-    {
-        audioSources[0].Play();
-    }
     #endregion SoundFx
 }

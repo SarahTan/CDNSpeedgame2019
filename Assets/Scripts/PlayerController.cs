@@ -107,7 +107,6 @@ public class PlayerController : MonoBehaviour
             var downChar = Event.current.character;
             if (char.IsLetter(downChar))
             {
-                GameManager.Instance.FireLetterSound();
                 GameManager.AlphabetManager.ActivateAlphabet(char.ToUpperInvariant(downChar));
             }
         }
@@ -161,8 +160,6 @@ public class PlayerController : MonoBehaviour
             {
                 alphabet.IsActive = false;
             }
-
-            GameManager.Instance.DeathSound();
             StartCoroutine(DeathRoutine());
             return;
         }

@@ -909,6 +909,16 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2422341671097210365, guid: 897b2fcc1adfb5245a454b38e217fd36,
+        type: 3}
+      propertyPath: m_havePropertiesChanged
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2422341671097210365, guid: 897b2fcc1adfb5245a454b38e217fd36,
+        type: 3}
+      propertyPath: m_isInputParsingRequired
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1246066441026525946, guid: 897b2fcc1adfb5245a454b38e217fd36,
         type: 3}
       propertyPath: m_AnchorMin.y
@@ -934,6 +944,16 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6150516417181108936, guid: 897b2fcc1adfb5245a454b38e217fd36,
+        type: 3}
+      propertyPath: m_havePropertiesChanged
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6150516417181108936, guid: 897b2fcc1adfb5245a454b38e217fd36,
+        type: 3}
+      propertyPath: m_isInputParsingRequired
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8933068400576309340, guid: 897b2fcc1adfb5245a454b38e217fd36,
         type: 3}
       propertyPath: m_AnchorMin.y
@@ -959,6 +979,16 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2540411693571579534, guid: 897b2fcc1adfb5245a454b38e217fd36,
+        type: 3}
+      propertyPath: m_havePropertiesChanged
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2540411693571579534, guid: 897b2fcc1adfb5245a454b38e217fd36,
+        type: 3}
+      propertyPath: m_isInputParsingRequired
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7832842631809200920, guid: 897b2fcc1adfb5245a454b38e217fd36,
         type: 3}
       propertyPath: m_AnchorMin.y
@@ -983,6 +1013,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2328582076128355118, guid: 897b2fcc1adfb5245a454b38e217fd36,
+        type: 3}
+      propertyPath: m_havePropertiesChanged
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2328582076128355118, guid: 897b2fcc1adfb5245a454b38e217fd36,
+        type: 3}
+      propertyPath: m_isInputParsingRequired
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7656168883850411486, guid: 897b2fcc1adfb5245a454b38e217fd36,
         type: 3}

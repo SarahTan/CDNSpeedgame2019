@@ -119,7 +119,6 @@ public class Alphabet : MonoBehaviour
             if (Vector2.Distance(transform.position, GameManager.Player.ReticleCenter) < reticleRadius)
             {
                 // Reached the target without colliding into anything, just deactivate it
-                GameManager.Instance.LetterDisappearSound();
                 IsActive = false;
             }
         }
